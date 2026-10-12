@@ -1,57 +1,58 @@
-@extends('layouts.app')
+@extends('layouts.admin')
+@section('title', 'Kelola Kategori')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-tags"></i> Kelola Kategori</h2>
-    @if(Auth::user()->role === 'admin')
-        <a href="{{ route('categories.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Tambah Kategori
-        </a>
-    @endif
-</div>
+    <div class="page-header">
+        <div>
+            <h2 class="page-title"><i class="bi bi-tags"></i> Kelola Kategori</h2>
+            <p class="page-subtitle">Total: {{ $categories->count() }} kategori</p>
+        </div>
+        <a href="{{ route('categories.create') }}" class="btn-accent"><i class="bi bi-plus-circle"></i> Tambah Kategori</a>
+    </div>
 
-<div class="surface">
-    <div class="card-body">
-        <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead>
-                <tr>
-                    <th width="60">No</th>
-                    <th>Nama Kategori</th>
-                    <th width="180">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($categories as $index => $category)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $category->name }}</td>
-                    <td>
-                        @if(Auth::user()->role === 'admin')
-                            <a href="{{ route('categories.edit', $category) }}" class="btn btn-warning btn-sm">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
-                            <form action="{{ route('categories.destroy', $category) }}" method="POST"
-                                  class="d-inline" onsubmit="return confirm('Yakin ingin menghapus kategori ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i> Hapus
-                                </button>
-                            </form>
-                        @else
-                            <span class="text-muted">-</span>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="3" class="text-center text-muted py-4">Belum ada kategori.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th width="60">No</th>
+                            <th>Nama Kategori</th>
+                            <th width="180">Jumlah Bucket</th>
+                            <th width="220">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($categories as $index => $category)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td><strong>{{ $category->name }}</strong></td>
+                                <td><span class="category-pill"><i class="bi bi-flower2"></i>
+                                        {{ $category->products_count }} bucket</span></td>
+                                <td>
+                                    <a href="{{ route('categories.edit', $category) }}" class="btn btn-warning btn-sm"><i
+                                            class="bi bi-pencil"></i> Edit</a>
+                                    <form action="{{ route('categories.destroy', $category) }}" method="POST"
+                                        class="d-inline" onsubmit="return confirm('Yakin hapus kategori ini?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Hapus</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <i class="bi bi-tags"></i>
+                                        <h4>Belum Ada Kategori</h4>
+                                        <p>Mulai tambahkan kategori pertama Anda!</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 @endsection

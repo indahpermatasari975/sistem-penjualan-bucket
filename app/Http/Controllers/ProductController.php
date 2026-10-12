@@ -9,10 +9,42 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->latest()->paginate(10);
-        return view('products.index', compact('products'));
+        $query = Product::with('category')->latest();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+        if ($request->filled('stock')) {
+            match ($request->stock) {
+                'low' => $query->whereBetween('stock', [1, 5]),
+                'out' => $query->where('stock', 0),
+                default => null,
+            };
+        }
+        match ($request->get('sort', 'latest')) {
+            'price_asc'  => $query->reorder('price', 'asc'),
+            'price_desc' => $query->reorder('price', 'desc'),
+            'stock_asc'  => $query->reorder('stock', 'asc'),
+            'name_asc'   => $query->reorder('name', 'asc'),
+            default      => null,
+        };
+
+        $products   = $query->paginate(12)->withQueryString();
+        $categories = Category::all();
+
+        $stats = [
+            'total'      => Product::count(),
+            'low_stock'  => Product::whereBetween('stock', [1, 5])->count(),
+            'out_stock'  => Product::where('stock', 0)->count(),
+            'income'     => Product::sum('price'),
+        ];
+
+        return view('products.index', compact('products', 'categories', 'stats'));
     }
 
     public function create()
@@ -25,20 +57,34 @@ class ProductController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'price' => 'required|integer|min:0',
-            'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:2048',
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|integer|min:0',
+            'stock'       => 'required|integer|min:0',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'category_id.required' => 'Kategori wajib dipilih.',
+            'name.required'        => 'Nama bucket wajib diisi.',
+            'price.required'       => 'Harga wajib diisi.',
+            'stock.required'       => 'Jumlah tersedia wajib diisi.',
+            'image.image'          => 'File harus berupa gambar.',
+            'image.max'            => 'Ukuran gambar maksimal 2MB.',
         ]);
 
         $data = $request->all();
-
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
         Product::create($data);
-        return redirect()->route('products.index')->with('success', 'Produk berhasil ditambahkan!');
+
+        return redirect()->route('products.index')
+            ->with('success', 'Bucket "' . $request->name . '" berhasil ditambahkan!');
+    }
+
+    public function show(Product $product)
+    {
+        return view('products.show', compact('product'));
     }
 
     public function edit(Product $product)
@@ -51,14 +97,14 @@ class ProductController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'price' => 'required|integer|min:0',
-            'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:2048',
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|integer|min:0',
+            'stock'       => 'required|integer|min:0',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $data = $request->all();
-
         if ($request->hasFile('image')) {
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
@@ -67,15 +113,20 @@ class ProductController extends Controller
         }
 
         $product->update($data);
-        return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui!');
+
+        return redirect()->route('products.index')
+            ->with('success', 'Bucket "' . $product->name . '" berhasil diperbarui!');
     }
 
     public function destroy(Product $product)
     {
+        $name = $product->name;
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus!');
+
+        return redirect()->route('products.index')
+            ->with('success', 'Bucket "' . $name . '" berhasil dihapus!');
     }
 }
