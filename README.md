@@ -1,58 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌸 Sistem Penjualan Bucket Bunga
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Halo! Ini project tugas kuliah saya, **Sistem Penjualan Bucket Bunga** atau biasa saya sebut **Bucket House**.
 
-## About Laravel
+Project ini adalah website toko online yang menjual bucket bunga. Pembeli bisa lihat katalog, custom order, checkout, dan bayar. Admin bisa kelola produk, pesanan, dan cetak invoice.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tentang Saya
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Nama:** Indah Permata Sari
+- **NIM:** 2401091009
+- **Kelas:** MI 3A
+- **Jurusan:** Teknologi Informasi
+- **Prodi:** Manajemen Informatika
+- **Kampus:** Politeknik Negeri Padang
 
-## Learning Laravel
+Project ini dibuat untuk memenuhi tugas mata kuliah **Pemrograman Web Framework**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+##  Fitur Website
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Untuk Pembeli (User)
+- Daftar akun & login (bisa pakai email atau nomor HP)
+- Lihat katalog bucket bunga
+- Filter produk berdasarkan kategori
+- Lihat detail produk
+- Custom order — bisa request bunga, boneka, uang, warna kertas, pita, dan pesan ucapan
+- Tambah ke keranjang & checkout
+- Pilih metode pembayaran (E-Wallet atau Cash)
+- Atur jadwal pengiriman
+- Kasih ulasan & rating bintang
 
-## Agentic Development
+### Untuk Admin (Penjual)
+- Dashboard admin dengan sidebar
+- Tambah, edit, hapus produk
+- Upload gambar produk
+- Kelola kategori produk
+- Lihat pesanan yang masuk
+- Update status pengiriman
+- Atur stok bahan baku
+- Cetak invoice
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
-```bash
-composer require laravel/boost --dev
 
-php artisan boost:install
-```
+## 📅 Progress Tugas
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Ini progress saya per minggu. Yang udah ada tanda ✅ berarti selesai:
 
-## Contributing
+- [x] **Minggu 1 — 6 Okt 2026:** Login, Register & Logout ✅
+- [x] **Minggu 2 — 13 Okt 2026:** CRUD Produk, Kategori & Upload Gambar ✅
+- [ ] **Minggu 3 — 20 Okt 2026:** Landing Page & Detail Produk
+- [ ] **Minggu 4 — 27 Okt 2026:** Fitur Rakit Buket Custom
+- [ ] **Minggu 5 — 3 Nov 2026:** Keranjang & Checkout
+- [ ] **Minggu 6 — 10 Nov 2026:** Pembayaran Digital & Cash
+- [ ] **Minggu 7 — 17 Nov 2026:** Pilih Jadwal Pengiriman
+- [ ] **Minggu 8 — 24 Nov 2026:** Kelola Pesanan & Update Status
+- [ ] **Minggu 9 — 1 Des 2026:** Sistem Ulasan & Rating
+- [ ] **Minggu 10 — 8 Des 2026:** Testing & Optimasi
+- [ ] **Minggu 11 — 15 Des 2026:** Upload ke Hosting
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
