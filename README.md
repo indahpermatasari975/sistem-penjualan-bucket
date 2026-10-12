@@ -8,14 +8,12 @@ Project ini adalah website toko online yang menjual bucket bunga. Pembeli bisa l
 
 ## Tentang Saya
 
-| | |
-|---|---|
-| **Nama** | Indah Permata Sari |
-| **NIM** | 2401091009 |
-| **Kelas** | MI 3A |
-| **Jurusan** | Teknologi Informasi |
-| **Prodi** | Manajemen Informatika |
-| **Kampus** | Politeknik Negeri Padang |
+- **Nama:** Indah Permata Sari
+- **NIM:** 2401091009
+- **Kelas:** MI 3A
+- **Jurusan:** Teknologi Informasi
+- **Prodi:** Manajemen Informatika
+- **Kampus:** Politeknik Negeri Padang
 
 Project ini dibuat untuk memenuhi tugas mata kuliah **Pemrograman Web Framework**.
 
