@@ -1,6 +1,6 @@
 # 🌸 Sistem Penjualan Bucket Bunga
 
-Halo! Ini project tugas kuliah saya, **Sistem Penjualan Bucket Bunga** atau biasa saya sebut **Bucket House**.
+Halo! Ini project tugas kuliah saya, **Sistem Penjualan Buket Bunga** atau biasa saya sebut **Buket House**.
 
 Project ini adalah website toko online yang menjual bucket bunga. Pembeli bisa lihat katalog, custom order, checkout, dan bayar. Admin bisa kelola produk, pesanan, dan cetak invoice.
 
@@ -15,7 +15,7 @@ Project ini adalah website toko online yang menjual bucket bunga. Pembeli bisa l
 - **Prodi:** Manajemen Informatika
 - **Kampus:** Politeknik Negeri Padang
 
-Project ini dibuat untuk memenuhi tugas mata kuliah **Pemrograman Web Framework**.
+Project ini dibuat untuk memenuhi tugas mata kuliah **E-Commerce dan kewirausahaan**.
 
 ---
 
@@ -23,7 +23,7 @@ Project ini dibuat untuk memenuhi tugas mata kuliah **Pemrograman Web Framework*
 
 ### Untuk Pembeli (User)
 - Daftar akun & login (bisa pakai email atau nomor HP)
-- Lihat katalog bucket bunga
+- Lihat katalog buket bunga
 - Filter produk berdasarkan kategori
 - Lihat detail produk
 - Custom order — bisa request bunga, boneka, uang, warna kertas, pita, dan pesan ucapan
