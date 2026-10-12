@@ -8,7 +8,7 @@ Project ini adalah website toko online yang menjual bucket bunga. Pembeli bisa l
 
 ## Tentang Saya
 
-Nama    : Indah Permata Sari 
+Nama    : Indah Permata Sari |
 NIM     :2401091009 
 Kelas   : MI 3A 
 Jurusan : Teknologi Informasi 
