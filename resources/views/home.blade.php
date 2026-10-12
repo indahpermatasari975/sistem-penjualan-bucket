@@ -5,17 +5,17 @@
     <div class="row align-items-center position-relative" style="z-index: 1;">
         <div class="col-lg-8">
             <p class="eyebrow mb-2">Rangkaian kecil, kesan besar</p>
-            <h1 class="mb-3">Bucket untuk momen istimewa</h1>
-            <p class="text-muted mb-0">Temukan bucket pilihan yang dirangkai untuk merayakan setiap cerita.</p>
+            <h1 class="mb-3">Buket untuk momen istimewa</h1>
+            <p class="text-muted mb-0">Temukan buket pilihan yang dirangkai untuk merayakan setiap cerita.</p>
         </div>
     </div>
 </section>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="h3 mb-0"><i class="bi bi-flower1"></i> Katalog Bucket</h2>
+    <h2 class="h3 mb-0"><i class="bi bi-flower1"></i> Katalog Buket</h2>
     @auth
         @if(Auth::user()->role === 'admin')
-            <a href="{{ route('products.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Tambah Bucket</a>
+            <a href="{{ route('products.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Tambah Buket</a>
         @endif
     @endauth
 </div>
@@ -45,7 +45,7 @@
     @empty
         <div class="col-12 text-center py-5">
             <i class="bi bi-flower2" style="font-size: 3rem; color: #9aaa91;"></i>
-            <p class="mt-3 text-muted">Koleksi bucket sedang disiapkan.</p>
+            <p class="mt-3 text-muted">Koleksi buket sedang disiapkan.</p>
         </div>
     @endforelse
 </div>

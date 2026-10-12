@@ -4,7 +4,7 @@
 @section('content')
 <div class="page-header">
     <div>
-        <h2 class="page-title"><i class="bi bi-eye"></i> Detail Bucket</h2>
+        <h2 class="page-title"><i class="bi bi-eye"></i> Detail Buket</h2>
         <p class="page-subtitle">Informasi lengkap produk</p>
     </div>
     <div class="d-flex gap-2">
@@ -14,7 +14,7 @@
 </div>
 
 <div class="row g-4">
-    {{-- IMAGE --}}
+    {{-- Foto produk --}}
     <div class="col-lg-5">
         <div class="card" style="overflow: hidden;">
             @if($product->image)
@@ -25,25 +25,29 @@
         </div>
     </div>
 
-    {{-- INFO --}}
+    {{-- Info produk --}}
     <div class="col-lg-7">
         <div class="card h-100">
             <div class="card-body p-4">
                 <span class="category-pill">{{ $product->category->name }}</span>
                 <h1 style="font-family: 'Playfair Display', serif; margin: 12px 0;">{{ $product->name }}</h1>
-                <p style="color: var(--primary); font-weight: 700; font-size: 1.8rem; margin-bottom: 20px;">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                <p style="color: var(--primary); font-weight: 700; font-size: 1.8rem; margin-bottom: 20px;">
+                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                </p>
 
-                {{-- INFO BOXES --}}
+                {{-- Stok & status --}}
                 <div class="row g-3 mb-4">
                     <div class="col-6">
                         <div style="background: var(--cream); padding: 16px; border-radius: 10px;">
-                            <div style="font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Stok Tersedia</div>
-                            <div style="font-size: 1.3rem; font-weight: 700; color: var(--primary-dark); margin-top: 4px;">{{ $product->stock }} unit</div>
+                            <div style="font-size: 0.7rem; color: var(--muted); text-transform: uppercase;">Stok Tersedia</div>
+                            <div style="font-size: 1.3rem; font-weight: 700; color: var(--primary-dark); margin-top: 4px;">
+                                {{ $product->stock }} unit
+                            </div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div style="background: var(--cream); padding: 16px; border-radius: 10px;">
-                            <div style="font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;">Status</div>
+                            <div style="font-size: 0.7rem; color: var(--muted); text-transform: uppercase;">Status</div>
                             <div style="margin-top: 6px;">
                                 @if($product->stock > 10)
                                     <span class="stock-badge high" style="position: static;">✅ Tersedia</span>
@@ -59,114 +63,127 @@
 
                 <hr>
 
-                {{-- DESKRIPSI dengan format POINT + CATATAN --}}
+                {{-- Deskripsi --}}
                 <h5><i class="bi bi-card-text"></i> Deskripsi</h5>
-                <div class="description-content">
-                    @php
-                        $description = $product->description ?? 'Tidak ada deskripsi.';
 
-                        // Langkah 1: Pisahkan paragraf pembuka dengan bullet pertama
-                        $parts = preg_split('/\s*•\s*/u', $description);
-                        $opening = trim($parts[0] ?? '');
-                        $rawPoints = array_slice($parts, 1);
+                @php
+                    // Ambil deskripsi, pecah per baris
+                    $desc = $product->description ?? '';
+                    $lines = preg_split('/\r\n|\r|\n/', $desc);
 
-                        $normalPoints = [];
-                        $notes = [];
+                    $pembuka = [];
+                    $isi = [];
+                    $info = [];
+                    $catatan = [];
+                    $mode = 'pembuka';
 
-                        foreach ($rawPoints as $point) {
-                            $text = trim($point);
-                            if ($text === '') continue;
+                    foreach ($lines as $line) {
+                        $line = trim($line);
+                        if ($line == '') continue;
 
-                            // Cek apakah ada "(Catatan: ...)" di TENGAH poin
-                            if (preg_match('/\(Catatan\s*:\s*(.+?)\)/i', $text, $matches)) {
-                                // Ambil teks sebelum "(Catatan:"
-                                $beforeNote = trim(preg_replace('/\s*\(Catatan\s*:.*$/i', '', $text));
-                                if ($beforeNote !== '') {
-                                    $normalPoints[] = $beforeNote;
-                                }
-                                // Simpan catatan
-                                $notes[] = 'Catatan: ' . trim($matches[1]);
-                            }
-                            // Cek apakah "Catatan:" ada di awal poin (setelah •)
-                            elseif (preg_match('/^\(?Catatan\s*:/i', $text)) {
-                                $cleanNote = preg_replace('/^\(/', '', $text);
-                                $cleanNote = preg_replace('/\)$/', '', $cleanNote);
-                                $notes[] = trim($cleanNote);
-                            }
-                            else {
-                                $normalPoints[] = $text;
-                            }
+                        // Kalau baris "Isi:" atau "Isi Buket:"
+                        if (stripos($line, 'Isi') === 0 && strpos($line, ':') !== false) {
+                            $mode = 'isi';
+                            continue;
                         }
-                    @endphp
+                        // Kalau baris "Catatan:"
+                        if (stripos($line, 'Catatan') === 0 && strpos($line, ':') !== false) {
+                            $mode = 'catatan';
+                            continue;
+                        }
+                        // Kalau baris mulai dengan "-" atau "•"
+                        if (preg_match('/^[-•]\s*(.+)/u', $line, $m)) {
+                            $item = trim($m[1]);
+                            if ($mode == 'isi') {
+                                $isi[] = $item;
+                            } elseif ($mode == 'catatan') {
+                                $catatan[] = $item;
+                            } else {
+                                $info[] = $item;
+                            }
+                            continue;
+                        }
+                        // Kalau baris ada ":" (kayak "Ukuran: ..." atau "Cocok untuk: ...")
+                        if (strpos($line, ':') !== false && $mode != 'isi' && $mode != 'catatan') {
+                            $info[] = $line;
+                            continue;
+                        }
+                        // Kalau lagi mode isi/catatan tapi gak ada dash
+                        if ($mode == 'isi') { $isi[] = $line; continue; }
+                        if ($mode == 'catatan') { $catatan[] = $line; continue; }
 
-                    {{-- Paragraf Pembuka --}}
-                    @if($opening)
-                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 16px;">
-                            {{ $opening }}
-                        </p>
-                    @endif
+                        // Default masuk pembuka
+                        $pembuka[] = $line;
+                    }
+                @endphp
 
-                    {{-- Poin-poin Utama --}}
-                    @if(count($normalPoints) > 0)
-                        <ul class="product-points">
-                            @foreach($normalPoints as $point)
-                                @php
-                                    $hasColon = str_contains($point, ':');
-                                    $label = '';
-                                    $value = $point;
-                                    if ($hasColon) {
-                                        [$label, $value] = explode(':', $point, 2);
-                                        $label = trim($label);
-                                        $value = trim($value);
-                                    }
-                                @endphp
-                                <li>
-                                    @if($hasColon && $label)
-                                        <strong style="color: var(--primary-dark);">{{ $label }}:</strong>
-                                        {{ $value }}
-                                    @else
-                                        {{ $point }}
-                                    @endif
-                                </li>
+                {{-- Pembuka --}}
+                @foreach($pembuka as $p)
+                    <p style="color: var(--muted); line-height: 1.7; margin-bottom: 12px;">{{ $p }}</p>
+                @endforeach
+
+                {{-- Isi Buket --}}
+                @if(count($isi) > 0)
+                    <div style="margin-top: 16px;">
+                        <div style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; margin-bottom: 8px;">
+                            <i class="bi bi-bag-heart"></i> Isi Buket
+                        </div>
+                        <ul class="isi-list">
+                            @foreach($isi as $item)
+                                <li>{{ $item }}</li>
                             @endforeach
                         </ul>
-                    @endif
+                    </div>
+                @endif
 
-                    {{-- Catatan sebagai Paragraf Terpisah --}}
-                    @if(count($notes) > 0)
-                        @foreach($notes as $note)
-                            <div class="product-note">
-                                <i class="bi bi-info-circle-fill"></i>
-                                <div>
-                                    @php
-                                        $hasColon = str_contains($note, ':');
-                                        $label = '';
-                                        $value = $note;
-                                        if ($hasColon) {
-                                            [$label, $value] = explode(':', $note, 2);
-                                            $label = trim($label);
-                                            $value = trim($value);
-                                        }
-                                    @endphp
-                                    @if($hasColon && $label)
-                                        <strong>{{ $label }}:</strong> {{ $value }}
-                                    @else
-                                        {{ $note }}
-                                    @endif
+                {{-- Info (Ukuran, Cocok untuk, dll) --}}
+                @if(count($info) > 0)
+                    <div style="margin-top: 16px;">
+                        @foreach($info as $row)
+                            @if(strpos($row, ':') !== false)
+                                @php
+                                    $parts = explode(':', $row, 2);
+                                    $label = trim($parts[0]);
+                                    $value = trim($parts[1]);
+                                @endphp
+                                <div class="info-row">
+                                    <span class="info-label">{{ $label }}</span>
+                                    <span class="info-value">{{ $value }}</span>
                                 </div>
-                            </div>
+                            @else
+                                <p style="color: var(--muted); margin: 6px 0;">{{ $row }}</p>
+                            @endif
                         @endforeach
-                    @endif
-                </div>
+                    </div>
+                @endif
+
+                {{-- Catatan --}}
+                @if(count($catatan) > 0)
+                    <div class="catatan-box">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <div style="width: 100%;">
+                            <strong style="display:block; margin-bottom: 6px;">Catatan:</strong>
+                            <ul class="catatan-list">
+                                @foreach($catatan as $note)
+                                    <li>{{ $note }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+
+                @if(empty(trim($desc)))
+                    <p style="color: var(--muted); font-style: italic;">Belum ada deskripsi.</p>
+                @endif
 
                 <hr>
-                <hr>
 
-                {{-- DELETE --}}
-                <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Yakin hapus bucket ini?')">
-                    @csrf @method('DELETE')
+                {{-- Tombol hapus --}}
+                <form action="{{ route('products.destroy', $product) }}" method="POST" onsubmit="return confirm('Yakin hapus buket ini?')">
+                    @csrf
+                    @method('DELETE')
                     <button class="btn btn-outline-danger" style="border-radius: 10px;">
-                        <i class="bi bi-trash"></i> Hapus Bucket
+                        <i class="bi bi-trash"></i> Hapus Buket
                     </button>
                 </form>
             </div>
@@ -174,64 +191,86 @@
     </div>
 </div>
 
-{{-- STYLE KHUSUS UNTUK POINT & CATATAN --}}
 <style>
-    .description-content {
-        margin-top: 12px;
-    }
-
-    .product-points {
+    /* List isi bucket */
+    .isi-list {
         list-style: none;
-        padding-left: 0;
+        padding: 0;
         margin: 0;
     }
-    .product-points li {
+    .isi-list li {
         position: relative;
-        padding: 10px 12px 10px 36px;
-        margin-bottom: 8px;
+        padding: 8px 12px 8px 34px;
+        margin-bottom: 6px;
         background: var(--cream);
         border-left: 3px solid var(--accent);
         border-radius: 8px;
-        color: var(--ink);
-        line-height: 1.6;
-        font-size: 0.92rem;
-        transition: all 0.2s;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
-    .product-points li:hover {
-        background: #f5ede4;
-        transform: translateX(4px);
-    }
-    .product-points li::before {
+    .isi-list li::before {
         content: '🌸';
         position: absolute;
-        left: 12px;
+        left: 10px;
         top: 50%;
         transform: translateY(-50%);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
-    .product-note {
+    /* Baris info (Ukuran, Cocok untuk) */
+    .info-row {
         display: flex;
-        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e8e2d8;
+        font-size: 0.9rem;
+    }
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    .info-label {
+        color: var(--muted);
+        min-width: 110px;
+    }
+    .info-value {
+        color: var(--ink);
+        font-weight: 600;
+    }
+
+    /* Box catatan */
+    .catatan-box {
+        display: flex;
+        gap: 10px;
         align-items: flex-start;
         background: #fff8e7;
         border-left: 4px solid #f0b95a;
         border-radius: 8px;
         padding: 14px 16px;
-        margin-top: 12px;
+        margin-top: 16px;
         color: #7a5a1e;
         font-size: 0.9rem;
         line-height: 1.6;
-        box-shadow: 0 2px 8px rgba(240, 185, 90, 0.1);
     }
-    .product-note i {
+    .catatan-box i {
         color: #f0b95a;
         font-size: 1.1rem;
         margin-top: 2px;
-        flex-shrink: 0;
     }
-    .product-note strong {
-        color: #8a5a10;
+    .catatan-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .catatan-list li {
+        position: relative;
+        padding-left: 16px;
+        margin-bottom: 4px;
+    }
+    .catatan-list li::before {
+        content: '•';
+        position: absolute;
+        left: 2px;
+        color: #d4a574;
+        font-weight: 700;
     }
 </style>
 @endsection

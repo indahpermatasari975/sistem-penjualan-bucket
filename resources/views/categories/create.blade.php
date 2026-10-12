@@ -5,7 +5,7 @@
     <div class="page-header">
         <div>
             <h2 class="page-title"><i class="bi bi-plus-circle"></i> Tambah Kategori</h2>
-            <p class="page-subtitle">Buat kategori baru untuk bucket</p>
+            <p class="page-subtitle">Buat kategori baru untuk buket</p>
         </div>
         <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary" style="border-radius: 10px;">
             <i class="bi bi-arrow-left"></i> Kembali
@@ -19,7 +19,7 @@
                 <div class="mb-3">
                     <label class="form-label">Nama Kategori <span class="text-danger">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}"
-                        class="form-control @error('name') is-invalid @enderror" placeholder="Contoh: Bucket Bunga" required
+                        class="form-control @error('name') is-invalid @enderror" placeholder="Contoh: Buket Bunga" required
                         autofocus>
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>

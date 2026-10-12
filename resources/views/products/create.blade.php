@@ -4,8 +4,8 @@
 @section('content')
     <div class="page-header">
         <div>
-            <h2 class="page-title"><i class="bi bi-plus-circle"></i> Tambah Bucket Baru</h2>
-            <p class="page-subtitle">Tambahkan produk bucket baru ke toko</p>
+            <h2 class="page-title"><i class="bi bi-plus-circle"></i> Tambah Buket Baru</h2>
+            <p class="page-subtitle">Tambahkan produk buket baru ke toko</p>
         </div>
         <a href="{{ route('products.index') }}" class="btn btn-outline-secondary" style="border-radius: 10px;">
             <i class="bi bi-arrow-left"></i> Kembali
@@ -33,17 +33,17 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Nama Bucket <span class="text-danger">*</span></label>
+                            <label class="form-label">Nama Buket <span class="text-danger">*</span></label>
                             <input type="text" name="name" value="{{ old('name') }}"
                                 class="form-control @error('name') is-invalid @enderror"
-                                placeholder="Bucket Mawar Pink Premium" required>
+                                placeholder="Buket Mawar Pink Premium" required>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Deskripsi</label>
-                            <textarea name="description" rows="4" class="form-control" placeholder="Jelaskan detail bucket...">{{ old('description') }}</textarea>
+                            <textarea name="description" rows="4" class="form-control" placeholder="Jelaskan detail buket...">{{ old('description') }}</textarea>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -64,7 +64,7 @@
                             </div>
                         </div>
                         <div class="d-flex gap-2 pt-2">
-                            <button type="submit" class="btn-accent"><i class="bi bi-save"></i> Simpan Bucket</button>
+                            <button type="submit" class="btn-accent"><i class="bi bi-save"></i> Simpan Buket</button>
                             <a href="{{ route('products.index') }}" class="btn btn-outline-secondary"
                                 style="border-radius: 10px;">Batal</a>
                         </div>
@@ -75,7 +75,7 @@
 
         <div class="col-lg-5">
             <div class="card">
-                <div class="card-header"><i class="bi bi-image"></i> Foto Bucket</div>
+                <div class="card-header"><i class="bi bi-image"></i> Foto Buket</div>
                 <div class="card-body">
                     <label for="imageInput" class="upload-zone" id="dropZone">
                         <div id="previewContainer" style="display: none; width: 100%;">

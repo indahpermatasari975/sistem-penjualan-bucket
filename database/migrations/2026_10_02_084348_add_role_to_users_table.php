@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('pembeli'); // admin / pembeli
-            $table->string('phone')->nullable()->unique(); // <-- DIUBAH: tambah ->unique()
+            $table->string('role')->default('pembeli');
+            $table->string('phone')->nullable()->unique(); 
             $table->text('address')->nullable();
         });
     }

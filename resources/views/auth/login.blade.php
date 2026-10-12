@@ -5,7 +5,7 @@
         <div class="col-md-5 auth-wrap">
             <div class="surface">
                 <div class="card-header text-center">
-                    <h4><i class="bi bi-flower1"></i> Masuk ke Bucket House</h4>
+                    <h4><i class="bi bi-flower1"></i> Masuk ke Buket House</h4>
                 </div>
                 <div class="card-body p-4">
                     @if (session('success'))

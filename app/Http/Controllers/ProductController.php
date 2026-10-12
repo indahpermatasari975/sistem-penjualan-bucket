@@ -64,7 +64,7 @@ class ProductController extends Controller
             'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ], [
             'category_id.required' => 'Kategori wajib dipilih.',
-            'name.required'        => 'Nama bucket wajib diisi.',
+            'name.required'        => 'Nama buket wajib diisi.',
             'price.required'       => 'Harga wajib diisi.',
             'stock.required'       => 'Jumlah tersedia wajib diisi.',
             'image.image'          => 'File harus berupa gambar.',
@@ -79,7 +79,7 @@ class ProductController extends Controller
         Product::create($data);
 
         return redirect()->route('products.index')
-            ->with('success', 'Bucket "' . $request->name . '" berhasil ditambahkan!');
+            ->with('success', 'Buket "' . $request->name . '" berhasil ditambahkan!');
     }
 
     public function show(Product $product)
@@ -115,7 +115,7 @@ class ProductController extends Controller
         $product->update($data);
 
         return redirect()->route('products.index')
-            ->with('success', 'Bucket "' . $product->name . '" berhasil diperbarui!');
+            ->with('success', 'Buket "' . $product->name . '" berhasil diperbarui!');
     }
 
     public function destroy(Product $product)
@@ -127,6 +127,6 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')
-            ->with('success', 'Bucket "' . $name . '" berhasil dihapus!');
+            ->with('success', 'Buket "' . $name . '" berhasil dihapus!');
     }
 }

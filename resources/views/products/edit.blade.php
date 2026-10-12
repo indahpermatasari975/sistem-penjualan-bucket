@@ -4,8 +4,8 @@
 @section('content')
 <div class="page-header">
     <div>
-        <h2 class="page-title"><i class="bi bi-pencil"></i> Edit Bucket</h2>
-        <p class="page-subtitle">Perbarui informasi bucket</p>
+        <h2 class="page-title"><i class="bi bi-pencil"></i> Edit Buket</h2>
+        <p class="page-subtitle">Perbarui informasi buket</p>
     </div>
     <a href="{{ route('products.index') }}" class="btn btn-outline-secondary" style="border-radius: 10px;">
         <i class="bi bi-arrow-left"></i> Kembali
@@ -27,7 +27,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Nama Bucket <span class="text-danger">*</span></label>
+                        <label class="form-label">Nama Buket <span class="text-danger">*</span></label>
                         <input type="text" name="name" value="{{ old('name', $product->name) }}" class="form-control" required>
                     </div>
                     <div class="mb-3">

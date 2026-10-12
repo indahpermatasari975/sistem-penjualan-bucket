@@ -9,10 +9,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // ==========================================
-    // 1. TAMPILKAN HALAMAN
-    // ==========================================
-
+    // 1. TAMPILKAN HALAMAN LOGIN DAN REGISTER
     public function showLoginForm()
     {
         return view('auth.login');
@@ -23,10 +20,7 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    // ==========================================
     // 2. PROSES LOGIN (Email ATAU No HP)
-    // ==========================================
-
     public function login(Request $request)
     {
         // Validasi input
@@ -60,10 +54,7 @@ class AuthController extends Controller
         return back()->withErrors(['login' => 'Email/No HP atau password salah.'])->onlyInput('login');
     }
 
-    // ==========================================
     // 3. PROSES REGISTER
-    // ==========================================
-
     public function register(Request $request)
     {
         // Validasi
@@ -98,10 +89,7 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 
-    // ==========================================
     // 4. LOGOUT
-    // ==========================================
-
     public function logout(Request $request)
     {
         Auth::logout();

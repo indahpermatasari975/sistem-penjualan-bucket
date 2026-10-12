@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin') - Bucket House</title>
+    <title>@yield('title', 'Admin') - Buket House</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
@@ -141,7 +141,7 @@
             </button>
             <a href="{{ route('products.index') }}" class="brand">
                 <i class="bi bi-flower1"></i>
-                <span>Bucket House Admin</span>
+                <span>Buket House Admin</span>
             </a>
         </div>
         <div class="user-info">
@@ -160,7 +160,7 @@
         <aside class="sidebar">
             <div class="sidebar-brand">
                 <i class="bi bi-flower1"></i>
-                <h5>BUCKET HOUSE</h5>
+                <h5>BUKET HOUSE</h5>
                 <small>Admin Panel</small>
             </div>
 

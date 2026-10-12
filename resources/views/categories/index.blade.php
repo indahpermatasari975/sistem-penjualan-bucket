@@ -18,7 +18,7 @@
                         <tr>
                             <th width="60">No</th>
                             <th>Nama Kategori</th>
-                            <th width="180">Jumlah Bucket</th>
+                            <th width="180">Jumlah Buket</th>
                             <th width="220">Aksi</th>
                         </tr>
                     </thead>
@@ -28,7 +28,7 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td><strong>{{ $category->name }}</strong></td>
                                 <td><span class="category-pill"><i class="bi bi-flower2"></i>
-                                        {{ $category->products_count }} bucket</span></td>
+                                        {{ $category->products_count }} buket</span></td>
                                 <td>
                                     <a href="{{ route('categories.edit', $category) }}" class="btn btn-warning btn-sm"><i
                                             class="bi bi-pencil"></i> Edit</a>
