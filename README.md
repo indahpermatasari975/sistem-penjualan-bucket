@@ -6,22 +6,20 @@ Project ini adalah website toko online yang menjual bucket bunga. Pembeli bisa l
 
 ---
 
-## 👩‍🎓 Tentang Saya
+## Tentang Saya
 
-| | |
-|---|---|
-| **Nama** | Indah Permata Sari |
-| **NIM** | 2401091009 |
-| **Kelas** | MI 3A |
-| **Jurusan** | Teknologi Informasi |
-| **Prodi** | Manajemen Informatika |
-| **Kampus** | Politeknik Negeri Padang |
+Nama    : Indah Permata Sari 
+NIM     :2401091009 
+Kelas   : MI 3A 
+Jurusan : Teknologi Informasi 
+Prodi   : Manajemen Informatika 
+Kampus  : Politeknik Negeri Padang 
 
 Project ini dibuat untuk memenuhi tugas mata kuliah **Pemrograman Web Framework**.
 
 ---
 
-## ✨ Fitur Website
+##  Fitur Website
 
 ### Untuk Pembeli (User)
 - Daftar akun & login (bisa pakai email atau nomor HP)
@@ -46,19 +44,6 @@ Project ini dibuat untuk memenuhi tugas mata kuliah **Pemrograman Web Framework*
 
 ---
 
-## 🛠️ Tools yang Dipakai
-
-| Nama | Keterangan |
-|------|------------|
-| **Laravel 11** | Framework PHP utama |
-| **PHP 8.2** | Bahasa pemrograman |
-| **MariaDB** | Database |
-| **Bootstrap 5** | Tampilan biar cantik |
-| **Blade** | Template HTML dari Laravel |
-| **Google Fonts** | Font Playfair Display & DM Sans |
-| **Bootstrap Icons** | Icon-icon website |
-
----
 
 ## 📅 Progress Tugas
 
@@ -78,7 +63,7 @@ Ini progress saya per minggu. Yang udah ada tanda ✅ berarti selesai:
 
 ---
 
-## 🚀 Cara Menjalankan Project
+##  Cara Menjalankan Project
 
 Kalau mau coba jalanin project ini di komputer kamu, ikuti langkah berikut:
 
