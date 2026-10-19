@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --primary: #315d49;
@@ -61,16 +62,15 @@
         /* CARDS */
         .card { border: none; border-radius: 14px; box-shadow: 0 4px 12px rgba(45,85,68,0.08); transition: box-shadow 0.3s; }
         .card:hover { box-shadow: 0 8px 22px rgba(45,85,68,0.12); }
-        .card-header { border-radius: 14px 14px 0 0 !important; border-bottom: 1px solid var(--line); padding: 18px 24px; background: white; font-weight: 600; }
 
         /* BUTTONS */
         .btn-primary-custom { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 500; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(45,85,68,0.2); }
         .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,85,68,0.3); color: white; }
-        .btn-accent { background: linear-gradient(135deg, var(--accent), #d4849c); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(232, 164, 184, 0.3); }
+        .btn-accent { background: linear-gradient(135deg, var(--accent), #d4849c); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(232, 164, 184, 0.3); text-decoration: none; }
         .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232, 164, 184, 0.5); color: white; }
 
         /* STAT CARDS */
-        .stat-card { padding: 16px 20px; border-radius: 12px; background: #fffefa; border: 1px solid var(--line); height: 100%; }
+        .stat-card { padding: 16px 20px; border-radius: 12px; background: #fff; border: 1px solid var(--line); height: 100%; }
         .stat-card.total { border-left: 4px solid var(--primary); }
         .stat-card.income { border-left: 4px solid var(--primary-light); }
         .stat-card.low { border-left: 4px solid #efb184; }
@@ -84,29 +84,29 @@
         .stat-trend { font-size: 0.75rem; color: var(--primary-light); }
 
         /* FILTER */
-        .filter-bar { background: #fffefa; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; }
+        .filter-bar { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; }
         .filter-bar label { font-size: 0.7rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
         .form-control, .form-select { border-radius: 8px; border: 1.5px solid var(--line); padding: 9px 14px; font-size: 0.9rem; }
         .form-control:focus, .form-select:focus { border-color: var(--primary-light); box-shadow: 0 0 0 4px rgba(74,128,105,0.1); }
 
-        /* PRODUCT CARD */
-        .bucket-card { background: #fffefa; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: all 0.3s; height: 100%; }
+        /* PRODUCT CARD (BAGIAN KELOLA PRODUK) */
+        .bucket-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: all 0.3s; height: 100%; display: flex; flex-direction: column; }
         .bucket-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(45,85,68,0.15); }
-        .bucket-img { height: 200px; object-fit: cover; width: 100%; }
-        .bucket-placeholder { height: 200px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-soft), var(--cream)); color: var(--accent); font-size: 3rem; }
+        .bucket-img { height: 220px; object-fit: cover; width: 100%; }
+        .bucket-placeholder { height: 220px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-soft), var(--cream)); color: var(--accent); font-size: 3rem; }
         .stock-badge { position: absolute; top: 12px; right: 12px; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
         .stock-badge.high { background: #d1e7dd; color: #0a3622; }
         .stock-badge.low { background: #fff3cd; color: #664d03; }
         .stock-badge.out { background: #f8d7da; color: #58151c; }
         .category-pill { background: #eaf0e7; color: var(--primary); font-weight: 600; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; display: inline-block; }
-        .product-actions { padding: 10px 12px; border-top: 1px solid var(--line); display: flex; gap: 6px; }
+        .product-actions { padding: 10px 12px; border-top: 1px solid var(--line); display: flex; gap: 6px; margin-top: auto; }
 
-        /* UPLOAD */
-        .upload-zone { border: 2px dashed var(--line); border-radius: 12px; padding: 40px 20px; text-align: center; background: var(--cream); transition: all 0.3s; min-height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .upload-zone:hover, .upload-zone.dragover { border-color: var(--primary-light); background: #eaf0e7; }
-        .upload-zone i.upload-icon { font-size: 3rem; color: var(--accent); }
+        /* TABLES */
+        .table thead th { background: var(--primary-dark); color: white; padding: 14px 16px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; border: 0; }
+        .table tbody td { padding: 14px 16px; vertical-align: middle; border-color: #f5efe8; }
+        .table tbody tr:hover { background: var(--cream); }
 
-        /* TOAST */
+        /* TOAST (NOTIFIKASI) */
         .toast-container-custom { position: fixed; top: 90px; right: 24px; z-index: 9999; }
         .toast-custom { min-width: 320px; padding: 16px 20px; background: white; border-radius: 12px; box-shadow: 0 16px 40px rgba(45,85,68,0.15); border-left: 4px solid var(--primary-light); display: flex; align-items: center; gap: 12px; margin-bottom: 10px; animation: slideIn 0.4s ease; }
         .toast-custom.success { border-left-color: #28a745; }
@@ -116,32 +116,17 @@
         .toast-custom.error i { color: #dc3545; }
         @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* EMPTY */
+        /* EMPTY STATE */
         .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
         .empty-state i { font-size: 4rem; color: var(--accent-soft); display: block; margin-bottom: 16px; }
-
-        /* TABLE */
-        .table thead th { background: var(--primary-dark); color: white; padding: 14px 16px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; border: 0; }
-        .table tbody td { padding: 14px 16px; vertical-align: middle; border-color: #f5efe8; }
-        .table tbody tr:hover { background: var(--cream); }
-
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -260px; z-index: 999; transition: left 0.3s; }
-            .sidebar.show { left: 0; }
-            .content { padding: 20px 16px; }
-        }
     </style>
 </head>
 <body>
 
     <nav class="top-nav">
         <div class="d-flex align-items-center">
-            <button class="btn btn-link text-white d-md-none me-2" onclick="document.querySelector('.sidebar').classList.toggle('show')">
-                <i class="bi bi-list fs-4"></i>
-            </button>
             <a href="{{ route('products.index') }}" class="brand">
-                <i class="bi bi-flower1"></i>
-                <span>Buket House Admin</span>
+                <i class="bi bi-flower1"></i> Buket House Admin
             </a>
         </div>
         <div class="user-info">
@@ -164,7 +149,7 @@
                 <small>Admin Panel</small>
             </div>
 
-            {{-- <div class="sidebar-section">Transaksi</div>
+            <div class="sidebar-section">Transaksi</div>
             <ul class="sidebar-menu">
                 <li><a href="#" class="text-muted"><i class="bi bi-cart3"></i> Pesanan <span class="badge-count">5</span></a></li>
                 <li><a href="#" class="text-muted"><i class="bi bi-credit-card"></i> Pembayaran</a></li>
@@ -173,9 +158,14 @@
 
             <div class="sidebar-section">Pelanggan</div>
             <ul class="sidebar-menu">
-                <li><a href="#" class="text-muted"><i class="bi bi-people"></i> Daftar User</a></li>
+                <!-- MENU DAFTAR USER SUDAH AKTIF -->
+                <li>
+                    <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Daftar User
+                    </a>
+                </li>
                 <li><a href="#" class="text-muted"><i class="bi bi-star"></i> Ulasan <span class="badge-count">3</span></a></li>
-            </ul> --}}
+            </ul>
 
             <div class="sidebar-section">Produk</div>
             <ul class="sidebar-menu">
@@ -191,11 +181,11 @@
                 </li>
             </ul>
 
-            {{-- <div class="sidebar-section">Lainnya</div>
+            <div class="sidebar-section">Lainnya</div>
             <ul class="sidebar-menu">
                 <li><a href="#" class="text-muted"><i class="bi bi-gear"></i> Pengaturan</a></li>
                 <li><a href="{{ route('home') }}" target="_blank"><i class="bi bi-globe"></i> Lihat Toko</a></li>
-            </ul> --}}
+            </ul>
         </aside>
 
         <main class="content">
