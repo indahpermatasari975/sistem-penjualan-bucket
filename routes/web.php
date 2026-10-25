@@ -6,6 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CustomBuketController;
+use App\Http\Controllers\CheckoutController;
 use App\Models\Product;
 use App\Models\Category;
 
@@ -44,7 +47,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // ==========================================
 Route::middleware(['auth.manual'])->group(function () {
 
-    // Halaman Detail Produk (Minggu 3 & 4)
+    // Halaman Detail Produk Biasa / Ready (Minggu 3 & 4)
     Route::get('/produk/{id}', function ($id) {
         $product = Product::with('category')->find($id);
         if (!$product) {
@@ -53,10 +56,20 @@ Route::middleware(['auth.manual'])->group(function () {
         return view('products.detail', compact('product'));
     })->name('products.detail');
 
-    // Halaman Keranjang (Minggu 5)
-    Route::get('/keranjang', function () {
-        return view('cart.index');
-    })->name('cart.index');
+    // Halaman Rakit Buket Custom (Fitur Minggu 4)
+    Route::get('/rakit-buket/{product?}', [CustomBuketController::class, 'index'])
+        ->whereNumber('product')
+        ->name('custom.index');
+    Route::post('/rakit-buket/proses', [CustomBuketController::class, 'process'])->name('custom.process');
+
+    // Halaman Pembayaran & Checkout (Fitur Minggu 4)
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/direct', [CheckoutController::class, 'directCheckout'])->name('checkout.direct');
+    Route::post('/checkout/proses', [CheckoutController::class, 'processPayment'])->name('checkout.process');
+
+    // Halaman Keranjang (Minggu 4 & 5)
+    Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/keranjang/tambah', [CartController::class, 'add'])->name('cart.add');
 
     // Halaman Akun (Minggu 5)
     Route::get('/akun', function () {
@@ -71,7 +84,6 @@ Route::middleware(['auth.manual'])->group(function () {
         // CRUD Produk & Kategori
         Route::resource('products', ProductController::class)->except(['index', 'show']);
         Route::resource('categories', CategoryController::class)->except(['index']);
-
         // FITUR BARU: DAFTAR USER
         Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
