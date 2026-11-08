@@ -57,8 +57,24 @@
 
                     @auth
                         {{-- TAMPILAN JIKA SUDAH LOGIN --}}
+                        @php
+                            // Ambil jumlah item keranjang langsung dari database (Model Cart) milik user yang login
+                            $jumlahKeranjang = (int) \App\Models\Cart::where('user_id', Auth::id())->sum('quantity');
+                            $jumlahPesananDiproses = \App\Models\Order::where('user_id', Auth::id())
+                                ->where('status', 'diproses')
+                                ->count();
+                        @endphp
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('cart.index') }}"><i class="bi bi-cart3"></i> Keranjang</a>
+                            <a class="nav-link" href="{{ route('cart.index') }}">
+                                <i class="bi bi-cart3"></i> Keranjang
+                                <span class="badge rounded-pill bg-danger">{{ $jumlahKeranjang }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('pesanan.index') }}">
+                                <i class="bi bi-bag-check"></i> Pesanan Saya
+                                <span class="badge rounded-pill bg-danger">{{ $jumlahPesananDiproses }}</span>
+                            </a>
                         </li>
                         <li class="nav-item dropdown ms-3">
                             <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
