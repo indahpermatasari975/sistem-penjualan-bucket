@@ -51,10 +51,10 @@ Ini progress saya per minggu. Yang udah ada tanda ✅ berarti selesai:
 
 - [x] **Minggu 1 — 6 Okt 2026:** Login, Register & Logout ✅
 - [x] **Minggu 2 — 13 Okt 2026:** CRUD Produk, Kategori & Upload Gambar ✅
-- [ ] **Minggu 3 — 20 Okt 2026:** Landing Page & Detail Produk ✅
-- [ ] **Minggu 4 — 27 Okt 2026:** Fitur Rakit Buket Custom ✅
-- [ ] **Minggu 5 — 3 Nov 2026:** Keranjang & Checkout
-- [ ] **Minggu 6 — 10 Nov 2026:** Pembayaran Digital & Cash
+- [x] **Minggu 3 — 20 Okt 2026:** Landing Page & Detail Produk ✅
+- [x] **Minggu 4 — 27 Okt 2026:** Fitur Rakit Buket Custom ✅
+- [x] **Minggu 5 — 3 Nov 2026:** Keranjang & Checkout ✅
+- [x] **Minggu 6 — 10 Nov 2026:** Pembayaran Digital & Cash ✅
 - [ ] **Minggu 7 — 17 Nov 2026:** Pilih Jadwal Pengiriman
 - [ ] **Minggu 8 — 24 Nov 2026:** Kelola Pesanan & Update Status
 - [ ] **Minggu 9 — 1 Des 2026:** Sistem Ulasan & Rating
