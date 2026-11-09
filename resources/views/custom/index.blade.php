@@ -10,29 +10,20 @@
         <h2 class="fw-bold" style="font-family: 'Playfair Display', serif; color: #1e3d2f; font-size: 2.5rem;">
             Rakit Buket <span style="color: #e9897d;">Custom</span>
         </h2>
-        <p class="text-muted">Kreasikan buket impianmu sendiri dengan memilih bunga, uang, boneka, dan warna buket!</p>
+        <p class="text-muted">Kreasikan buket impianmu sendiri dengan memilih bunga, uang, boneka, snack, dan warna buket!</p>
     </div>
 
-    <!-- Layout 2 Kolom Responsif -->
     <div class="row g-4">
-
-        <!-- ================= A. KOLOM KIRI: PRATINJAU BUKET ================= -->
+        <!-- KOLOM KIRI: PRATINJAU -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 90px; border-radius: 16px; background-color: #ffffff;">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h5 class="fw-bold mb-0" style="color: #1e3d2f;">
-                        <i class="bi bi-eye text-danger me-2"></i> Pratinjau Buket Custom
-                    </h5>
-                </div>
-                <p class="text-muted small mb-3">
-                    Foto produk ini menjadi contoh bentuk dasar buket. Pilihan Anda akan memperbarui ringkasan dan estimasi harga.
-                </p>
+                <h5 class="fw-bold mb-3" style="color: #1e3d2f;">
+                    <i class="bi bi-eye text-danger me-2"></i> Pratinjau Buket Custom
+                </h5>
 
                 <div class="border rounded-3 overflow-hidden shadow-sm bg-light" style="aspect-ratio: 1 / 1;">
                     @if ($product && $product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}"
-                             alt="Pratinjau {{ $product->name }}"
-                             class="w-100 h-100 object-fit-cover">
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="Pratinjau" class="w-100 h-100 object-fit-cover">
                     @else
                         <div class="w-100 h-100 d-flex align-items-center justify-content-center">
                             <i class="bi bi-flower2" style="font-size: 8rem; color: #e9897d;"></i>
@@ -42,144 +33,143 @@
 
                 <!-- Ringkasan Pilihan -->
                 <div class="mt-4 p-3 rounded-3" style="background-color: #faf6f0; border: 1px dashed #d6cec2;">
-                    <div class="small mb-1">
-                        <span class="text-muted">Bunga:</span>
-                        <strong id="ringkasBunga" class="text-dark">-</strong>
-                    </div>
-                    <div class="small mb-1">
-                        <span class="text-muted">Uang:</span>
-                        <strong id="ringkasUang" class="text-dark">-</strong>
-                    </div>
-                    <div class="small mb-1">
-                        <span class="text-muted">Boneka:</span>
-                        <strong id="ringkasBoneka" class="text-dark">-</strong>
-                    </div>
-                    <div class="small">
-                        <span class="text-muted">Warna buket:</span>
-                        <strong id="ringkasWarna" class="text-dark">-</strong>
-                    </div>
+                    <div class="small mb-1"><span class="text-muted">Bunga:</span> <strong id="ringkasBunga" class="text-dark">-</strong></div>
+                    <div class="small mb-1"><span class="text-muted">Uang:</span> <strong id="ringkasUang" class="text-dark">-</strong></div>
+                    <div class="small mb-1"><span class="text-muted">Boneka:</span> <strong id="ringkasBoneka" class="text-dark">-</strong></div>
+                    <!-- Tambahan Ringkasan Snack -->
+                    <div class="small mb-1"><span class="text-muted">Snack:</span> <strong id="ringkasSnack" class="text-dark">-</strong></div>
+                    <div class="small mb-1"><span class="text-muted">Warna Kertas:</span> <strong id="ringkasWarna" class="text-dark">-</strong></div>
+                    <div class="small"><span class="text-muted">Pita:</span> <strong id="ringkasPita" class="text-dark">-</strong></div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= B. KOLOM KANAN: FORM RAKIT BUKET CUSTOM ================= -->
+        <!-- KOLOM KANAN: FORM CUSTOM -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm p-4" style="border-radius: 16px; background-color: #ffffff;">
                 <h4 class="fw-bold mb-1" style="color: #1e3d2f;">Pilih Elemen Buket Anda</h4>
-                <p class="text-muted small mb-4">Pilih komponen buket untuk melihat ringkasan dan estimasi harga.</p>
+                <p class="text-muted small mb-4">Pilih komponen yang mau ditambahkan saja.</p>
 
-                <!-- Form Custom Buket -->
+                @if ($errors->any())
+                    <div class="alert alert-danger mb-4">
+                        <strong><i class="bi bi-exclamation-triangle me-2"></i>Periksa Kembali Pilihan Anda!</strong>
+                        <ul class="mb-0 mt-1 small">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <form action="{{ route('custom.process') }}" method="POST" id="formRakitBuket" data-harga-dasar="{{ $product->price ?? 0 }}">
                     @csrf
-                    @if ($product)
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    @endif
+                    @if ($product) <input type="hidden" name="product_id" value="{{ $product->id }}"> @endif
 
-                    <!-- 1. Pilih Bunga -->
+                    <!-- 1. Bunga -->
                     <div class="mb-3">
-                        <label for="bunga_isi" class="form-label fw-bold">
-                            <i class="bi bi-flower2 text-success me-1"></i> 1. Bunga <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select form-select-lg" name="bunga_isi" id="bunga_isi" onchange="hitungTotal()" required>
-                            <option value="Tanpa Uang" data-price="0">-- Tanpa Uang --</option>
+                        <label class="form-label fw-bold"><i class="bi bi-flower2 text-success me-1"></i> 1. Bunga <span class="text-danger">*</span></label>
+                        <select class="form-select" name="bunga_isi" id="bunga_isi" onchange="hitungTotal()" required>
+                            <option value="Tanpa Bunga" data-price="0">-- Tanpa Bunga --</option>
                             @foreach ($customOptions['Bunga'] as $option)
-                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}"
-                                        {{ old('bunga_isi', $loop->first ? $option['value'] : '') === $option['value'] ? 'selected' : '' }}>
+                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}" {{ old('bunga_isi') == $option['value'] ? 'selected' : '' }}>
                                     {{ $option['name'] }} (+Rp {{ number_format($option['price'], 0, ',', '.') }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- 2. Pilih Uang (Opsional) -->
+                    <!-- 2. Uang -->
                     <div class="mb-3">
-                        <label for="uang_nominal" class="form-label fw-bold">
-                            <i class="bi bi-cash-stack text-success me-1"></i> 2. Uang <span class="text-muted fw-normal"></span>
-                        </label>
+                        <label class="form-label fw-bold"><i class="bi bi-cash-stack text-success me-1"></i> 2. Uang</label>
                         <select class="form-select" name="uang_nominal" id="uang_nominal" onchange="hitungTotal()">
                             <option value="Tanpa Uang" data-price="0">-- Tanpa Uang --</option>
                             @foreach ($customOptions['Uang'] as $option)
-                                <option value="{{ $option['value'] }}" data-price="0"
-                                        {{ old('uang_nominal', $loop->first ? $option['value'] : '') === $option['value'] ? 'selected' : '' }}>
+                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}" {{ old('uang_nominal') == $option['value'] ? 'selected' : '' }}>
                                     {{ $option['name'] }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- 3. Banyak Lembar Uang (Opsional) -->
+                    <!-- 3. Banyak Lembar Uang -->
                     <div class="mb-3">
-                        <label for="jumlah_lembar" class="form-label fw-bold">
-                            <i class="bi bi-receipt text-success me-1"></i> 3. Banyak Lembar Uang <span class="text-muted fw-normal"></span>
-                        </label>
+                        <label class="form-label fw-bold"><i class="bi bi-receipt text-success me-1"></i> 3. Banyak Lembar Uang</label>
                         <select class="form-select" name="jumlah_lembar" id="jumlah_lembar" onchange="hitungTotal()">
                             <option value="0" data-price="0">-- Tanpa Lembar Uang --</option>
                             @foreach ($customOptions['Banyak Lembar Uang'] as $option)
-                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}"
-                                        {{ old('jumlah_lembar', $loop->first ? $option['value'] : '') === $option['value'] ? 'selected' : '' }}>
+                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}" {{ old('jumlah_lembar') == $option['value'] ? 'selected' : '' }}>
                                     {{ $option['name'] }} (+Rp {{ number_format($option['price'], 0, ',', '.') }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- 4. Pilih Boneka (Opsional) -->
+                    <!-- 4. Boneka -->
                     <div class="mb-3">
-                        <label for="tambahan_boneka" class="form-label fw-bold">
-                            <i class="bi bi-heart text-danger me-1"></i> 4. Boneka <span class="text-muted fw-normal"></span>
-                        </label>
+                        <label class="form-label fw-bold"><i class="bi bi-heart text-danger me-1"></i> 4. Boneka</label>
                         <select class="form-select" name="tambahan_boneka" id="tambahan_boneka" onchange="hitungTotal()">
-                            <option value="Tanpa Boneka" data-price="0">-- Tanpa Boneka --</option>
                             @foreach ($customOptions['Boneka'] as $option)
-                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}"
-                                        {{ old('tambahan_boneka', $option['value'] === 'Tanpa Boneka' ? $option['value'] : '') === $option['value'] ? 'selected' : '' }}>
+                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}" {{ old('tambahan_boneka') == $option['value'] ? 'selected' : '' }}>
+                                    {{ $option['name'] }} {{ $option['price'] > 0 ? '(+Rp ' . number_format($option['price'], 0, ',', '.') . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- 5. SNACK -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-cookie text-warning me-1"></i> 5. Pilihan Snack</label>
+                        <select class="form-select" name="tambahan_snack" id="tambahan_snack" onchange="hitungTotal()">
+                            <option value="Tanpa Snack" data-price="0">-- Tanpa Snack --</option>
+                            @foreach ($customOptions['Snack'] as $option)
+                                <option value="{{ $option['value'] }}" data-price="{{ $option['price'] }}" {{ old('tambahan_snack') == $option['value'] ? 'selected' : '' }}>
                                     {{ $option['name'] }} (+Rp {{ number_format($option['price'], 0, ',', '.') }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- 5. Warna Buket -->
+                    <!-- 6. Warna Buket -->
                     <div class="mb-3">
-                        <label for="warna_buket" class="form-label fw-bold">
-                            <i class="bi bi-palette text-primary me-1"></i> 5. Warna Buket <span class="text-danger">*</span>
-                        </label>
+                        <label class="form-label fw-bold"><i class="bi bi-palette text-primary me-1"></i> 6. Warna Kertas Buket <span class="text-danger">*</span></label>
                         <select class="form-select" name="warna_buket" id="warna_buket" onchange="hitungTotal()" required>
                             @foreach ($customOptions['Warna Buket'] as $option)
-                                <option value="{{ $option['value'] }}" data-price="0"
-                                        {{ old('warna_buket', $loop->first ? $option['value'] : '') === $option['value'] ? 'selected' : '' }}>
-                                    {{ $option['name'] }} (+Rp 0)
+                                <option value="{{ $option['value'] }}" data-price="0" {{ old('warna_buket') == $option['value'] ? 'selected' : '' }}>
+                                    {{ $option['name'] }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- 6. Pesan Ucapan -->
+                    <!-- 7. Pilihan Pita -->
                     <div class="mb-3">
-                        <label for="pesan_ucapan" class="form-label fw-bold">
-                            <i class="bi bi-card-text text-secondary me-1"></i> 6. Pesan Ucapan <span class="text-muted fw-normal">(Kartu Ucapan)</span>
-                        </label>
-                        <input type="text" class="form-control" name="pesan_ucapan" id="pesan_ucapan" value="{{ old('pesan_ucapan') }}" placeholder="Contoh: Selamat Wisuda ya! Semoga makin sukses selalu.">
+                        <label class="form-label fw-bold"><i class="bi bi-bookmark-heart text-danger me-1"></i> 7. Pilihan Pita</label>
+                        <select class="form-select" name="warna_pita" id="warna_pita" onchange="hitungTotal()">
+                            <option value="Senada dengan Buket" {{ old('warna_pita') == 'Senada dengan Buket' ? 'selected' : '' }}>Pita Senada dengan Buket</option>
+                            <option value="Pita Satin Putih" {{ old('warna_pita') == 'Pita Satin Putih' ? 'selected' : '' }}>Pita Satin Putih</option>
+                            <option value="Pita Satin Emas" {{ old('warna_pita') == 'Pita Satin Emas' ? 'selected' : '' }}>Pita Satin Emas</option>
+                            <option value="Pita Satin Pink" {{ old('warna_pita') == 'Pita Satin Pink' ? 'selected' : '' }}>Pita Satin Pink</option>
+                            <option value="Pita Satin Hitam" {{ old('warna_pita') == 'Pita Satin Hitam' ? 'selected' : '' }}>Pita Satin Hitam</option>
+                            <option value="Pita Satin Maroon" {{ old('warna_pita') == 'Pita Satin Maroon' ? 'selected' : '' }}>Pita Satin Maroon</option>
+                        </select>
                     </div>
 
-                    <!-- 7. Request Khusus -->
+                    <!-- 8. Pesan Ucapan -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-card-text text-secondary me-1"></i> 8. Pesan Ucapan</label>
+                        <input type="text" class="form-control" name="pesan_ucapan" id="pesan_ucapan" value="{{ old('pesan_ucapan') }}" placeholder="Contoh: Selamat Wisuda!">
+                    </div>
+
+                    <!-- 9. Request Khusus -->
                     <div class="mb-4">
-                        <label for="request_khusus" class="form-label fw-bold">
-                            <i class="bi bi-pencil-square text-secondary me-1"></i> 7. Request Khusus <span class="text-muted fw-normal"></span>
-                        </label>
-                        <textarea class="form-control" name="request_khusus" id="request_khusus" rows="2" placeholder="Catatan tambahan untuk perangkai...">{{ old('request_khusus') }}</textarea>
+                        <label class="form-label fw-bold"><i class="bi bi-pencil-square text-secondary me-1"></i> 9. Request Khusus</label>
+                        <textarea class="form-control" name="request_khusus" id="request_khusus" rows="2" placeholder="Catatan tambahan...">{{ old('request_khusus') }}</textarea>
                     </div>
 
-                    <!-- Estimasi Total Harga -->
-                    <div class="card border-0 mb-4 p-3 shadow-sm" style="background: linear-gradient(135deg, #fcf9f4 0%, #faece9 100%); border-radius: 12px; border-left: 6px solid #1e3d2f !important;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-muted small d-block">Estimasi Total Harga Buket:</span>
-                                <h2 class="fw-bold mb-0" id="tampilanTotalHarga" style="color: #1e3d2f;">Rp {{ number_format($product->price ?? 0, 0, ',', '.') }}</h2>
-                                <small class="text-muted" style="font-size: 0.75rem;">Harga produk + bunga + boneka + biaya jasa lembar uang.</small>
-                            </div>
-                        </div>
-                        <!-- Hidden input untuk dikirim ke Controller -->
+                    <!-- Total Harga -->
+                    <div class="card border-0 mb-4 p-3 shadow-sm" style="background-color: #faf6f0; border-left: 6px solid #1e3d2f !important;">
+                        <span class="text-muted small">Estimasi Total Harga:</span>
+                        <h2 class="fw-bold mb-0" id="tampilanTotalHarga" style="color: #1e3d2f;">Rp {{ number_format($product->price ?? 0, 0, ',', '.') }}</h2>
                         <input type="hidden" name="total_price" id="inputTotalPrice" value="{{ $product->price ?? 0 }}">
                     </div>
 
@@ -187,7 +177,7 @@
                     <div class="row g-2">
                         <div class="col-sm-6">
                             <button type="submit" name="action" value="keranjang" class="btn btn-outline-success btn-lg w-100 py-3 fw-bold">
-                                <i class="bi bi-cart-plus me-1"></i> Masukkan ke Keranjang
+                                <i class="bi bi-cart-plus me-1"></i> Masukkan Keranjang
                             </button>
                         </div>
                         <div class="col-sm-6">
@@ -197,66 +187,56 @@
                         </div>
                     </div>
                 </form>
-
-                <div class="mt-4 text-center">
-                    <a href="{{ route('home') }}" class="text-decoration-none text-muted small">
-                        <i class="bi bi-arrow-left"></i> Kembali ke Katalog Produk
-                    </a>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ================= LOGIKA JAVASCRIPT ================= -->
+<!-- LOGIKA JAVASCRIPT -->
 <script>
-    // Ambil harga dasar produk
-    const hargaDasarProduk = Number(document.getElementById('formRakitBuket').dataset.hargaDasar);
+    const formRakit = document.getElementById('formRakitBuket');
+    const hargaDasarProduk = Number(formRakit.dataset.hargaDasar);
 
     function hitungTotal() {
-        // Ambil elemen dropdown
         const selectBunga = document.getElementById('bunga_isi');
+        const hargaBunga = Number(selectBunga.options[selectBunga.selectedIndex].getAttribute('data-price')) || 0;
+
         const selectUang = document.getElementById('uang_nominal');
-        const selectJumlahLembar = document.getElementById('jumlah_lembar');
+        const hargaUang = Number(selectUang.options[selectUang.selectedIndex].getAttribute('data-price')) || 0;
+
+        const selectLembar = document.getElementById('jumlah_lembar');
+        const hargaLembar = Number(selectLembar.options[selectLembar.selectedIndex].getAttribute('data-price')) || 0;
+
         const selectBoneka = document.getElementById('tambahan_boneka');
-        const selectWarna = document.getElementById('warna_buket');
+        const hargaBoneka = Number(selectBoneka.options[selectBoneka.selectedIndex].getAttribute('data-price')) || 0;
 
-        // Ambil harga dari atribut data-price
-        const hargaBunga = Number(selectBunga.selectedOptions[0]?.dataset.price || 0);
-        const hargaLembar = Number(selectJumlahLembar.selectedOptions[0]?.dataset.price || 0);
-        const hargaBoneka = Number(selectBoneka.selectedOptions[0]?.dataset.price || 0);
+        // Ambil harga Snack
+        const selectSnack = document.getElementById('tambahan_snack');
+        const hargaSnack = Number(selectSnack.options[selectSnack.selectedIndex].getAttribute('data-price')) || 0;
 
-        // Hitung total
-        const totalHarga = hargaDasarProduk + hargaBunga + hargaLembar + hargaBoneka;
+        // Total Harga
+        const totalHarga = hargaDasarProduk + hargaBunga + hargaUang + hargaLembar + hargaBoneka + hargaSnack;
 
-        // Tampilkan total ke layar
-        document.getElementById('tampilanTotalHarga').textContent = 'Rp ' + totalHarga.toLocaleString('id-ID');
-
-        // Masukkan nilai ke input hidden agar terbaca oleh Controller
+        document.getElementById('tampilanTotalHarga').innerText = 'Rp ' + totalHarga.toLocaleString('id-ID');
         document.getElementById('inputTotalPrice').value = totalHarga;
 
-        // Update Teks Ringkasan di Kiri
-        document.getElementById('ringkasBunga').textContent = selectBunga.value;
+        // Update Ringkasan Kiri
+        document.getElementById('ringkasBunga').innerText = selectBunga.value;
+        document.getElementById('ringkasWarna').innerText = document.getElementById('warna_buket').value;
+        document.getElementById('ringkasPita').innerText = document.getElementById('warna_pita').value;
+        document.getElementById('ringkasSnack').innerText = selectSnack.value; // Ringkasan Snack
 
-        // Logika khusus untuk Uang (jika memilih "Tanpa Uang")
-        if (selectUang.value === 'Tanpa Uang') {
-            document.getElementById('ringkasUang').textContent = 'Tanpa Uang';
+        if (selectUang.value == 'Tanpa Uang') {
+            document.getElementById('ringkasUang').innerText = 'Tanpa Uang';
         } else {
-            document.getElementById('ringkasUang').textContent =
-                'Rp ' + Number(selectUang.value).toLocaleString('id-ID') + ' (' + selectJumlahLembar.value + ')';
+            document.getElementById('ringkasUang').innerText = 'Rp ' + Number(selectUang.value).toLocaleString('id-ID');
         }
 
-        // Logika khusus untuk Boneka (jika memilih "Tanpa Boneka")
-        if (selectBoneka.value === 'Tanpa Boneka') {
-            document.getElementById('ringkasBoneka').textContent = 'Tanpa Boneka';
-        } else {
-            document.getElementById('ringkasBoneka').textContent = selectBoneka.value;
-        }
-
-        document.getElementById('ringkasWarna').textContent = selectWarna.value;
+        document.getElementById('ringkasBoneka').innerText = selectBoneka.value;
     }
 
-    // Jalankan saat halaman pertama kali dimuat
-    document.addEventListener('DOMContentLoaded', hitungTotal);
+    document.addEventListener('DOMContentLoaded', function() {
+        hitungTotal();
+    });
 </script>
 @endsection

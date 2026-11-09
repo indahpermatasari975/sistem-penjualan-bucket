@@ -59,6 +59,7 @@ Route::middleware(['auth.manual'])->group(function () {
 
     Route::get('/rakit-buket/{product?}', [CustomBuketController::class, 'index'])->whereNumber('product')->name('custom.index');
     Route::post('/rakit-buket/proses', [CustomBuketController::class, 'process'])->name('custom.process');
+    Route::post('/checkout/custom', [CustomBuketController::class, 'process'])->name('checkout.custom');
 
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/direct', [CheckoutController::class, 'directCheckout'])->name('checkout.direct');
@@ -70,6 +71,11 @@ Route::middleware(['auth.manual'])->group(function () {
     Route::post('/keranjang/tambah', [CartController::class, 'add'])->name('cart.add');
     Route::delete('/keranjang/hapus/{id}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('/keranjang/kosongkan', [CartController::class, 'clear'])->name('cart.clear');
+
+    // =======================================================
+    // RUTE BARU UNTUK FITUR PILIH PRODUK DI KERANJANG (PHP MURNI)
+    // =======================================================
+    Route::post('/keranjang/pilih-produk', [CartController::class, 'updateSelection'])->name('cart.update_selection');
 
     Route::get('/pesanan-saya', [PesananController::class, 'index'])->name('pesanan.index');
     Route::get('/pesanan-saya/{id}', [PesananController::class, 'show'])->name('pesanan.show');

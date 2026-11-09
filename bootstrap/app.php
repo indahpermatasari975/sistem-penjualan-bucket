@@ -17,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.manual' => \App\Http\Middleware\AuthMiddleware::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // Kecualikan endpoint webhook Midtrans dari pengecekan CSRF Token
+        // Karena notifikasi dikirimkan dari server Midtrans ke sistem kita
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/webhook',
+            'webhook_midtrans.php',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

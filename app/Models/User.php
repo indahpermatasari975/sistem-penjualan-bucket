@@ -23,4 +23,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Relasi ke keranjang belanja milik user
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
 }

@@ -54,6 +54,7 @@
                     <!-- Menu Wajib -->
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#katalog">Produk</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('custom.index') }}">Rakit Buket</a></li>
 
                     @auth
                         {{-- TAMPILAN JIKA SUDAH LOGIN --}}
