@@ -1,20 +1,16 @@
 <?php
 
-// Konfigurasi Midtrans Payment Gateway
 return [
-    // Server Key Midtrans Sandbox (didapat dari dashboard Midtrans -> Pengaturan -> Access Keys)
-    'server_key' => env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-XXXXX-GANTI-DENGAN-KEY-KAMU'),
+    // Server Key dari Dashboard Midtrans
+    'server_key' => env('MIDTRANS_SERVER_KEY', 'SB-Mid-server-XXXXX'),
 
-    // Client Key Midtrans Sandbox (untuk script frontend Snap JS)
-    'client_key' => env('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-XXXXX-GANTI-DENGAN-KEY-KAMU'),
+    // Client Key dari Dashboard Midtrans
+    'client_key' => env('MIDTRANS_CLIENT_KEY', 'SB-Mid-client-XXXXX'),
 
-    // Mode Production: set false untuk testing (Sandbox), set true untuk live transaksi asli
+    // Mode Sandbox (false) atau Production (true)
     'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
 
-    // Sanitasi data otomatis
+    // Keamanan
     'is_sanitized' => env('MIDTRANS_IS_SANITIZED', true),
-
-    // 3D Secure untuk keamanan pembayaran kartu kredit
     'is_3ds' => env('MIDTRANS_IS_3DS', true),
 ];
-
