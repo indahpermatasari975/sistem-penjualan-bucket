@@ -19,6 +19,9 @@ class Order extends Model
         'phone',
         'address',
         'note',
+        'delivery_method',
+        'delivery_date',
+        'delivery_time',
         'payment_method',
         'status',
         'snap_token',
@@ -36,4 +39,3 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 }
-

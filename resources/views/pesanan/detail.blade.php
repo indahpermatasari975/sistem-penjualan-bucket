@@ -1,69 +1,295 @@
+
 @extends('layouts.app')
 
-@section('title', 'Detail Pesanan')
+@section('title', 'Detail Pesanan - Buket House')
 
 @section('content')
+
 <div class="container mt-5 mb-5">
+
+    <!-- HEADER HALAMAN -->
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
-            <h2 class="fw-bold mb-1" style="color: #1e3d2f;">Detail Pesanan</h2>
-            <span class="text-muted">{{ $order->invoice_number }}</span>
+            <h2 class="fw-bold mb-1" style="color: #1e3d2f;">
+                Detail Pesanan
+            </h2>
+
+            <p class="text-muted mb-0">
+                Invoice:
+                <strong>{{ $order->invoice_number }}</strong>
+            </p>
         </div>
+
         <a href="{{ route('pesanan.index') }}" class="btn btn-outline-success">
-            <i class="bi bi-arrow-left me-1"></i> Kembali
+            <i class="bi bi-arrow-left me-1"></i>
+            Kembali
         </a>
+
     </div>
 
     <div class="row g-4">
+
+        <!-- KOLOM KIRI: DAFTAR BARANG -->
         <div class="col-lg-7">
-            <div class="card border-0 shadow-sm p-4">
-                <h5 class="fw-bold mb-3" style="color: #1e3d2f;">Barang yang Dibeli</h5>
+
+            <div class="card border-0 shadow-sm p-4 h-100"
+                 style="border-radius: 14px;">
+
+                <h5 class="fw-bold border-bottom pb-3 mb-3"
+                    style="color: #1e3d2f;">
+
+                    <i class="bi bi-box-seam text-success me-2"></i>
+                    Barang yang Dibeli
+
+                </h5>
+
                 @foreach($order->items as $item)
-                    <div class="d-flex justify-content-between gap-3 border-bottom py-3">
-                        <div>
-                            <h6 class="fw-bold mb-1">{{ $item->product_name }}</h6>
-                            <div class="text-muted small">{{ $item->custom_details }}</div>
-                            <div class="small">{{ $item->quantity }} x Rp {{ number_format($item->price, 0, ',', '.') }}</div>
+
+                    <div class="d-flex mb-3 border-bottom pb-3">
+
+                        <div class="flex-grow-1">
+
+                            <h6 class="fw-bold mb-1">
+                                {{ $item->product_name }}
+                            </h6>
+
+                            @if($item->custom_details)
+
+                                <p class="text-muted small mb-2">
+                                    {{ $item->custom_details }}
+                                </p>
+
+                            @endif
+
+                            <div class="d-flex justify-content-between text-muted small">
+
+                                <span>
+                                    {{ $item->quantity }}
+                                    x Rp {{ number_format($item->price, 0, ',', '.') }}
+                                </span>
+
+                                <span class="fw-bold text-dark">
+                                    Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                                </span>
+
+                            </div>
+
                         </div>
-                        <div class="fw-semibold text-nowrap">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</div>
+
                     </div>
+
                 @endforeach
-                <div class="d-flex justify-content-between pt-3 fw-bold">
-                    <span>Total Pembayaran (termasuk ongkir)</span>
-                    <span style="color: #1e3d2f;">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+
+                <!-- TOTAL PEMBAYARAN -->
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+
+                    <span class="fw-bold fs-6">
+                        Total Pembayaran
+                    </span>
+
+                    <h4 class="fw-bold mb-0" style="color: #1e3d2f;">
+                        Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                    </h4>
+
                 </div>
+
             </div>
+
         </div>
 
+        <!-- KOLOM KANAN -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm p-4 mb-4">
-                <h5 class="fw-bold mb-3" style="color: #1e3d2f;">Informasi Pengiriman</h5>
-                <p class="mb-1"><strong>Penerima:</strong> {{ $order->recipient_name }}</p>
-                <p class="mb-1"><strong>Telepon:</strong> {{ $order->phone }}</p>
-                <p class="mb-0"><strong>Alamat:</strong><br>{{ $order->address }}</p>
-            </div>
-            <div class="card border-0 shadow-sm p-4">
-                <h5 class="fw-bold mb-3" style="color: #1e3d2f;">Pembayaran</h5>
-                <p class="mb-1"><strong>Metode:</strong> {{ $order->payment_method }}</p>
-                <p class="mb-2"><strong>Status:</strong> 
-                    @if($order->status == 'Lunas')
-                        <span class="badge bg-success">Lunas</span>
-                    @elseif($order->status == 'Belum Dibayar' || $order->status == 'menunggu')
-                        <span class="badge bg-warning text-dark">{{ $order->status }}</span>
-                    @elseif($order->status == 'Dibatalkan')
-                        <span class="badge bg-danger">{{ $order->status }}</span>
-                    @else
-                        <span class="badge bg-secondary">{{ $order->status }}</span>
-                    @endif
-                </p>
 
-                @if(($order->status == 'Belum Dibayar' || $order->status == 'menunggu') && $order->snap_token)
-                    <a href="{{ route('pembayaran.show', $order->id) }}" class="btn text-white w-100 mt-2 fw-semibold" style="background-color: #1e3d2f;">
-                        <i class="bi bi-credit-card me-1"></i> Bayar Sekarang via Midtrans
-                    </a>
-                @endif
+            <!-- INFORMASI PENGIRIMAN -->
+            <div class="card border-0 shadow-sm p-4 mb-4"
+                 style="border-radius: 14px;">
+
+                <h5 class="fw-bold border-bottom pb-3 mb-3"
+                    style="color: #1e3d2f;">
+
+                    <i class="bi bi-geo-alt text-danger me-2"></i>
+                    Informasi Pengiriman
+
+                </h5>
+
+                <table class="table table-borderless table-sm mb-0">
+
+                    <tr>
+                        <td class="text-muted" style="width: 35%;">
+                            Penerima
+                        </td>
+
+                        <td class="fw-semibold">
+                            : {{ $order->recipient_name }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">
+                            Telepon
+                        </td>
+
+                        <td class="fw-semibold">
+                            : {{ $order->phone }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">
+                            Alamat
+                        </td>
+
+                        <td class="fw-semibold">
+                            : {{ $order->address }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">
+                            Metode
+                        </td>
+
+                        <td class="fw-semibold">
+                            : {{ $order->delivery_method ?? '-' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">
+                            Tanggal
+                        </td>
+
+                        <td class="fw-semibold">
+                            :
+
+                            @if($order->delivery_date)
+
+                                {{ \Carbon\Carbon::parse($order->delivery_date)->locale('id')->translatedFormat('d F Y') }}
+
+                            @else
+
+                                -
+
+                            @endif
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">
+                            Jam
+                        </td>
+
+                        <td class="fw-semibold">
+                            :
+
+                            @if($order->delivery_time)
+
+                                {{ substr($order->delivery_time, 0, 5) }}
+
+                            @else
+
+                                -
+
+                            @endif
+
+                        </td>
+                    </tr>
+
+                    @if($order->note)
+
+                        <tr>
+                            <td class="text-muted">
+                                Catatan
+                            </td>
+
+                            <td class="fw-semibold">
+                                : {{ $order->note }}
+                            </td>
+                        </tr>
+
+                    @endif
+
+                </table>
+
             </div>
+
+            <!-- INFORMASI PEMBAYARAN -->
+            <div class="card border-0 shadow-sm p-4"
+                 style="border-radius: 14px;">
+
+                <h5 class="fw-bold border-bottom pb-3 mb-3"
+                    style="color: #1e3d2f;">
+
+                    <i class="bi bi-credit-card text-primary me-2"></i>
+                    Informasi Pembayaran
+
+                </h5>
+
+                <table class="table table-borderless table-sm mb-0">
+
+                    <tr>
+                        <td class="text-muted" style="width: 35%;">
+                            Metode
+                        </td>
+
+                        <td class="fw-semibold">
+                            : {{ $order->payment_method }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="text-muted">
+                            Status
+                        </td>
+
+                        <td>
+
+                            @if($order->status == 'Lunas')
+
+                                <span class="badge bg-success">
+                                    Lunas
+                                </span>
+
+                            @elseif($order->status == 'Belum Dibayar')
+
+                                <span class="badge bg-warning text-dark">
+                                    Belum Dibayar
+                                </span>
+
+                            @else
+
+                                <span class="badge bg-danger">
+                                    {{ $order->status }}
+                                </span>
+
+                            @endif
+
+                        </td>
+                    </tr>
+
+                </table>
+
+                <!-- TOMBOL BAYAR -->
+                @if($order->status == 'Belum Dibayar' && $order->snap_token)
+
+                    <a href="{{ route('pembayaran.show', $order->id) }}"
+                       class="btn text-white w-100 mt-3"
+                       style="background-color: #1e3d2f;">
+
+                        Bayar Sekarang
+
+                    </a>
+
+                @endif
+
+            </div>
+
         </div>
+
     </div>
+
 </div>
+
 @endsection

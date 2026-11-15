@@ -4,7 +4,11 @@
 
 @section('content')
 <div class="container mt-5 mb-5">
-    <h2 class="fw-bold mb-4" style="color: #1e3d2f;">Pesanan Saya</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0" style="color: #1e3d2f;">Pesanan Saya</h2>
+        <!-- Teks kecil penanda sistem sedang mengecek status -->
+        <small class="text-muted"><i class="bi bi-arrow-repeat"></i> Memperbarui status...</small>
+    </div>
 
     @if(count($orders) > 0)
         <div class="card border-0 shadow-sm">
@@ -16,7 +20,7 @@
                             <th>Tanggal</th>
                             <th>Status</th>
                             <th>Total</th>
-                            <th></th>
+                            <th class="text-end pe-3">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,7 +32,7 @@
                                     @if($order->status == 'Lunas')
                                         <span class="badge bg-success">Lunas</span>
                                     @elseif($order->status == 'Belum Dibayar' || $order->status == 'menunggu')
-                                        <span class="badge bg-warning text-dark">{{ $order->status }}</span>
+                                        <span class="badge bg-warning text-dark">Belum Dibayar</span>
                                     @elseif($order->status == 'diproses')
                                         <span class="badge bg-primary">Diproses</span>
                                     @elseif($order->status == 'selesai')
@@ -42,10 +46,24 @@
                                     @endif
                                 </td>
                                 <td>Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+
+                                <!-- AKSI -->
                                 <td class="text-end pe-3">
-                                    <a href="{{ route('pesanan.show', $order->id) }}" class="btn btn-sm btn-outline-success">
-                                        Detail <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    @if($order->status == 'Belum Dibayar' || $order->status == 'menunggu')
+                                        <!-- Tombol Bayar -->
+                                        <a href="{{ route('pembayaran.show', $order->id) }}" class="btn btn-sm btn-success fw-bold me-1">
+                                            Bayar
+                                        </a>
+                                        <!-- Tombol Detail -->
+                                        <a href="{{ route('pesanan.show', $order->id) }}" class="btn btn-sm btn-outline-success">
+                                            Detail <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    @else
+                                        <!-- Hanya Detail jika Lunas/Selesai -->
+                                        <a href="{{ route('pesanan.show', $order->id) }}" class="btn btn-sm btn-outline-success">
+                                            Detail <i class="bi bi-arrow-right"></i>
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
