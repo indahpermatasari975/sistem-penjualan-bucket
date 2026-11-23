@@ -402,13 +402,15 @@
                                 ? $item->product
                                 : null;
 
-                            $namaItem = $product
-                                ? $product->name
-                                : ($item['name'] ?? $item->name ?? 'Buket');
+                            $isCustom = ($isObj && !empty($item->custom_text) && str_contains($item->custom_text, '[HARGA:'));
 
-                            $hargaItem = $product
-                                ? $product->price
-                                : ($item['price'] ?? $item->price ?? 0);
+                            $namaItem = $isCustom
+                                ? 'Buket Custom'
+                                : ($product ? $product->name : ($item['name'] ?? $item->name ?? 'Buket'));
+
+                            $hargaItem = ($isObj && isset($item->price))
+                                ? $item->price
+                                : ($product ? $product->price : ($item['price'] ?? $item->price ?? 0));
 
                             $gambarItem = $product
                                 ? $product->image
@@ -419,8 +421,9 @@
                                 : ($item['quantity'] ?? $item['qty'] ?? 1);
 
                             $customKet = $isObj
-                                ? ($item->custom_text ?? '')
+                                ? ($item->clean_custom_text ?? ($item->custom_text ?? ''))
                                 : ($item['custom_text'] ?? '');
+                            $customKet = preg_replace('/\[HARGA:\d+\]\s*/', '', $customKet);
 
                             $subtotal = $hargaItem * $qty;
 

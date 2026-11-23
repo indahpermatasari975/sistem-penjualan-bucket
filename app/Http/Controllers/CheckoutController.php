@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Cart;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Contracts\View\View;
@@ -141,75 +142,127 @@ class CheckoutController extends Controller
             if (is_array($item)) {
                 $price = $item['price'] ?? 0;
             } else {
-                $price = $item->product->price ?? 0;
+                // Mengambil harga dari accessor model Cart (jika custom, mengambil harga custom; jika biasa, harga produk)
+                $price = $item->price ?? ($item->product->price ?? 0);
             }
 
             $totalHarga += ($price * $qty);
         }
 
-        // Menyimpan data pesanan
-        $order = Order::create([
-            'user_id' => Auth::id(),
-            'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
-
-            'recipient_name' => $request->nama_penerima,
-            'phone' => $request->telepon,
-            'address' => $request->alamat,
-
-            // Catatan kurir disimpan ke kolom note
-            'note' => $request->catatan_kurir,
-
-            // Jadwal pengiriman
-            'delivery_method' => $request->delivery_method,
-            'delivery_date' => $request->delivery_date,
-            'delivery_time' => $request->delivery_time,
-
-            'total_price' => $totalHarga,
-            'payment_method' => $request->metode_pembayaran,
-            'status' => 'Belum Dibayar',
-        ]);
-
-        // Menyimpan rincian barang pesanan
-        $cartIdsToDelete = [];
+        // Kumpulkan jumlah produk yang dibutuhkan agar stok bisa dicek sekaligus.
+        $kebutuhanStok = [];
 
         foreach ($dataPesanan as $item) {
+            $rincian = is_object($item)
+                ? ($item->custom_text ?? '')
+                : ($item['custom_text'] ?? '');
+            $buketCustom = (is_array($item) && ($item['type'] ?? null) === 'custom')
+                || str_contains($rincian, '[HARGA:');
 
-            $isModel = is_object($item);
-
-            $qty = $isModel
-                ? ($item->quantity ?? 1)
-                : ($item['quantity'] ?? $item['qty'] ?? 1);
-
-            if (is_array($item)) {
-                $price = $item['price'] ?? 0;
-            } else {
-                $price = $item->product->price ?? 0;
+            // Buket yang dirakit dari bahan custom tidak memakai stok produk katalog.
+            if ($buketCustom) {
+                continue;
             }
 
-            OrderItem::create([
-                'order_id' => $order->id,
+            $productId = is_object($item)
+                ? $item->product_id
+                : ($item['product_id'] ?? null);
+            $qty = (int) (is_object($item)
+                ? ($item->quantity ?? 1)
+                : ($item['quantity'] ?? $item['qty'] ?? 1));
 
-                'product_id' => $isModel
-                    ? ($item->product_id ?? null)
-                    : ($item['product_id'] ?? null),
+            if ($qty < 1) {
+                $pesanStok = 'Jumlah produk di keranjang tidak valid. Silakan periksa kembali keranjang Anda.';
 
-                'product_name' => $isModel
-                    ? ($item->product->name ?? 'Buket')
-                    : ($item['name'] ?? 'Buket'),
+                return $request->ajax()
+                    ? response()->json(['status' => 'error', 'message' => $pesanStok], 422)
+                    : redirect()->back()->with('error', $pesanStok);
+            }
 
-                'price' => $price,
-                'quantity' => $qty,
-                'subtotal' => $price * $qty,
-
-                'custom_details' => $isModel
-                    ? ($item->custom_text ?? '-')
-                    : ($item['custom_text'] ?? '-'),
-            ]);
-
-            if ($isModel && isset($item->id)) {
-                $cartIdsToDelete[] = $item->id;
+            if ($productId) {
+                $kebutuhanStok[$productId] = ($kebutuhanStok[$productId] ?? 0) + $qty;
             }
         }
+
+        // Stok, pesanan, dan rincian pesanan disimpan dalam satu transaksi.
+        $hasilCheckout = DB::transaction(function () use ($dataPesanan, $kebutuhanStok, $request, $totalHarga) {
+            $produkTerkunci = Product::whereIn('id', array_keys($kebutuhanStok))
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            // Pastikan semua stok cukup sebelum ada stok yang dikurangi.
+            foreach ($kebutuhanStok as $productId => $qty) {
+                if (!$produkTerkunci->has($productId) || $produkTerkunci[$productId]->stock < $qty) {
+                    return null;
+                }
+            }
+
+            foreach ($kebutuhanStok as $productId => $qty) {
+                $produkTerkunci[$productId]->decrement('stock', $qty);
+            }
+
+            $order = Order::create([
+                'user_id' => Auth::id(),
+                'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                'recipient_name' => $request->nama_penerima,
+                'phone' => $request->telepon,
+                'address' => $request->alamat,
+                'note' => $request->catatan_kurir,
+                'delivery_method' => $request->delivery_method,
+                'delivery_date' => $request->delivery_date,
+                'delivery_time' => $request->delivery_time,
+                'total_price' => $totalHarga,
+                'payment_method' => $request->metode_pembayaran,
+                'status' => 'Belum Dibayar',
+            ]);
+
+            $cartIdsToDelete = [];
+
+            foreach ($dataPesanan as $item) {
+                $isModel = is_object($item);
+                $qty = $isModel
+                    ? ($item->quantity ?? 1)
+                    : ($item['quantity'] ?? $item['qty'] ?? 1);
+                $price = $isModel
+                    ? ($item->price ?? ($item->product->price ?? 0))
+                    : ($item['price'] ?? 0);
+
+                $rawCustomDetails = $isModel ? ($item->custom_text ?? '-') : ($item['custom_text'] ?? '-');
+                $cleanCustomDetails = preg_replace('/\[HARGA:\d+\]\s*/', '', $rawCustomDetails);
+                $productName = $isModel
+                    ? ((!empty($item->custom_text) && str_contains($item->custom_text, '[HARGA:')) ? 'Buket Custom' : ($item->product->name ?? 'Buket'))
+                    : ($item['name'] ?? 'Buket');
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $isModel ? ($item->product_id ?? null) : ($item['product_id'] ?? null),
+                    'product_name' => $productName,
+                    'price' => $price,
+                    'quantity' => $qty,
+                    'subtotal' => $price * $qty,
+                    'custom_details' => $cleanCustomDetails ?: '-',
+                ]);
+
+                if ($isModel && isset($item->id)) {
+                    $cartIdsToDelete[] = $item->id;
+                }
+            }
+
+            return ['order' => $order, 'cart_ids' => $cartIdsToDelete];
+        });
+
+        if (!$hasilCheckout) {
+            $pesanStok = 'Stok produk tidak mencukupi. Silakan periksa kembali keranjang Anda.';
+
+            return $request->ajax()
+                ? response()->json(['status' => 'error', 'message' => $pesanStok], 422)
+                : redirect()->back()->with('error', $pesanStok);
+        }
+
+        $order = $hasilCheckout['order'];
+        $cartIdsToDelete = $hasilCheckout['cart_ids'];
 
         // Integrasi Midtrans
         $snapToken = null;

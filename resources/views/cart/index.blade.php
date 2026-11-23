@@ -39,11 +39,13 @@
                 @foreach($cart as $item)
                     @php
                         $product = is_object($item) && isset($item->product) ? $item->product : null;
-                        $namaProduk = $product ? $product->name : ($item['name'] ?? $item->name ?? 'Buket');
-                        $hargaProduk = $product ? $product->price : ($item['price'] ?? $item->price ?? 0);
+                        $isCustom = (is_object($item) && !empty($item->custom_text) && str_contains($item->custom_text, '[HARGA:'));
+                        $namaProduk = $isCustom ? 'Buket Custom' : ($product ? $product->name : ($item['name'] ?? $item->name ?? 'Buket'));
+                        $hargaProduk = (is_object($item) && isset($item->price)) ? $item->price : ($product ? $product->price : ($item['price'] ?? $item->price ?? 0));
                         $gambarProduk = $product ? $product->image : ($item['image'] ?? $item->image ?? null);
                         $qty = is_object($item) ? ($item->quantity ?? 1) : ($item['quantity'] ?? $item['qty'] ?? 1);
-                        $customRincian = is_object($item) ? ($item->custom_text ?? null) : ($item['custom_text'] ?? null);
+                        $customRincian = is_object($item) ? ($item->clean_custom_text ?? ($item->custom_text ?? null)) : ($item['custom_text'] ?? null);
+                        $customRincian = preg_replace('/\[HARGA:\d+\]\s*/', '', $customRincian);
 
                         // Ambil ID keranjang (pastikan menggunakan ID dari database)
                         $cartId = is_object($item) ? ($item->id ?? 0) : ($item['id'] ?? $loop->index);

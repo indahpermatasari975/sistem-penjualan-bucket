@@ -17,6 +17,6 @@ class CustomOption extends Model
         'category',
         'name',
         'price',
-        'image', // <-- TAMBAHKAN INI
+        'image',
     ];
 }

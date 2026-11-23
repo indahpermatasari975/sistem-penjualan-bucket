@@ -17,6 +17,7 @@ class Cart extends Model
         'user_id',
         'product_id',
         'quantity',
+        'price',
         'custom_text',
     ];
 
@@ -30,6 +31,31 @@ class Cart extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    // Accessor untuk mendapatkan harga item keranjang
+    // Jika item adalah buket custom dengan harga tersimpan atau tag [HARGA:...], ambil harga custom tersebut
+    public function getPriceAttribute()
+    {
+        if (isset($this->attributes['price']) && (int) $this->attributes['price'] > 0) {
+            return (int) $this->attributes['price'];
+        }
+
+        if (!empty($this->custom_text) && preg_match('/\[HARGA:(\d+)\]/', $this->custom_text, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return $this->product ? (int) $this->product->price : 0;
+    }
+
+    // Accessor untuk menampilkan teks kustomisasi tanpa tag internal [HARGA:...]
+    public function getCleanCustomTextAttribute()
+    {
+        if (empty($this->custom_text)) {
+            return null;
+        }
+
+        return trim(preg_replace('/\[HARGA:\d+\]\s*/', '', $this->custom_text));
     }
 }
 

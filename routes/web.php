@@ -365,6 +365,11 @@ Route::middleware(['auth.manual'])->group(function () {
             [OrderController::class, 'show']
         )->name('admin.orders.show');
 
+        Route::get(
+            '/admin/orders/{id}/invoice',
+            [OrderController::class, 'invoice']
+        )->name('admin.orders.invoice');
+
         Route::put(
             '/admin/orders/{id}/status',
             [OrderController::class, 'updateStatus']

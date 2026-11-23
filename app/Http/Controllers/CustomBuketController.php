@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomOption;
 use App\Models\Product;
+use App\Models\Cart;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class CustomBuketController extends Controller
 {
@@ -21,125 +22,243 @@ class CustomBuketController extends Controller
         return view('custom.index', compact('product', 'customOptions'));
     }
 
-    // Memproses form rakit custom buket (ke keranjang atau langsung checkout)
+    // Memproses form rakit custom buket
     public function process(Request $request)
     {
         $customOptions = $this->getCustomOptions();
 
         // 1. Validasi input form
-        $request->validate([
+        $validated = $request->validate([
             'product_id'      => 'nullable|integer',
-            'bunga_isi'       => 'nullable|string',
-            'uang_nominal'    => 'nullable|string',
-            'jumlah_lembar'   => 'nullable|string',
-            'tambahan_boneka' => 'nullable|string',
-            'tambahan_snack'  => 'nullable|string',
-            'warna_buket'     => 'nullable|string',
-            'warna_pita'      => 'nullable|string',
+            'bunga_isi'       => 'nullable|string|max:100',
+            'jumlah_tangkai'  => 'nullable|integer|min:0|max:50',
+            'uang_nominal'    => 'nullable|string|max:20',
+            'jumlah_lembar'   => 'nullable|integer|min:0|max:50',
+            'tambahan_boneka' => 'nullable|string|max:150',
+            'tambahan_snack'  => 'nullable|string|max:150',
+            'warna_buket'     => 'nullable|string|max:100',
+            'warna_kertas'    => 'nullable|string|max:100',
+            'warna_pita'      => 'nullable|string|max:100',
             'pesan_ucapan'    => 'nullable|string|max:255',
             'request_khusus'  => 'nullable|string|max:1000',
+            'action'          => 'required|in:keranjang,checkout',
         ]);
 
-        // 2. Ambil data produk dasar
+        // 2. Ambil produk hanya untuk referensi gambar
+        // Harga produk dasar tidak digunakan
         $product = null;
-        if ($request->filled('product_id')) {
-            $product = Product::find($request->product_id);
+
+        if (!empty($validated['product_id'])) {
+            $product = Product::find($validated['product_id']);
         }
+
         if (!$product) {
             $product = Product::first();
         }
 
-        // 3. Hitung harga masing-masing pilihan opsi
-        $hargaDasarProduk = $product ? (int) $product->price : 0;
-        $hargaBunga = $this->getOptionPrice($customOptions['Bunga'], (string) $request->input('bunga_isi'));
+        // 3. Hitung harga bunga
+        $bunga = $validated['bunga_isi'] ?? 'Tanpa Bunga';
 
-        $jumlahLembar = (int) $request->input('jumlah_lembar');
-        $hargaLembar = ($jumlahLembar > 0) ? ($jumlahLembar * 1000) : 0;
+        $hargaBungaPerTangkai = ($bunga !== 'Tanpa Bunga')
+            ? $this->getOptionPrice($customOptions['Bunga'], $bunga)
+            : 0;
 
-        $hargaBoneka = $this->getOptionPrice($customOptions['Boneka'], (string) $request->input('tambahan_boneka'));
-        $hargaSnack = $this->getOptionPrice($customOptions['Snack'], (string) $request->input('tambahan_snack'));
+        $jumlahTangkai = ($bunga !== 'Tanpa Bunga')
+            ? max(1, (int) ($validated['jumlah_tangkai'] ?? 1))
+            : 0;
 
-        // Total harga keseluruhan custom
-        $totalHarga = $hargaDasarProduk + $hargaBunga + $hargaLembar + $hargaBoneka + $hargaSnack;
+        $hargaBunga = $hargaBungaPerTangkai * $jumlahTangkai;
 
-        // Fallback jika total_price dikirim dari form javascript
-        if ($totalHarga <= 0 && $request->filled('total_price')) {
-            $totalHarga = (int) $request->input('total_price');
+        // 4. Hitung harga uang
+        $uangNominalInput = $validated['uang_nominal'] ?? '';
+
+        $nominalUang = ($uangNominalInput !== '' && $uangNominalInput !== 'Tanpa Uang')
+            ? (int) $uangNominalInput
+            : 0;
+
+        $lembarInput = (int) ($validated['jumlah_lembar'] ?? 0);
+
+        $jumlahLembar = ($nominalUang > 0 && $lembarInput > 0)
+            ? $lembarInput
+            : 0;
+
+        $hargaUang = $nominalUang * $jumlahLembar;
+
+        // 5. Hitung harga boneka
+        $boneka = $validated['tambahan_boneka'] ?? 'Tanpa Boneka';
+
+        $hargaBoneka = ($boneka !== 'Tanpa Boneka')
+            ? $this->getOptionPrice($customOptions['Boneka'], $boneka)
+            : 0;
+
+        // 6. Hitung harga snack
+        $snack = $validated['tambahan_snack'] ?? 'Tanpa Snack';
+
+        $hargaSnack = ($snack !== 'Tanpa Snack')
+            ? $this->getOptionPrice($customOptions['Snack'], $snack)
+            : 0;
+
+        // 7. Ambil dan hitung harga warna kertas
+        $warnaKertas = $validated['warna_kertas']
+            ?? $validated['warna_buket']
+            ?? '';
+
+        if ($warnaKertas === '') {
+            $warnaKertas = 'Belum dipilih';
         }
-        if ($totalHarga <= 0) {
-            $totalHarga = 150000; // Default jika gagal hitung
-        }
 
-        // 4. Tangkap rincian custom buket
-        $bunga = $request->input('bunga_isi') ?: 'Buket Custom';
-        $uangNominal = $request->input('uang_nominal');
-        $lembar = $request->input('jumlah_lembar');
-        $tambahanUang = ($uangNominal && $uangNominal !== 'Tanpa Uang' && (int)$lembar > 0)
-            ? 'Rp ' . number_format((int) $uangNominal, 0, ',', '.') . ' (' . $lembar . ' lembar)'
+        $hargaWarnaBuket = $this->getOptionPrice(
+            $customOptions['Warna Buket'],
+            $warnaKertas
+        );
+
+        // 8. Ambil dan hitung harga pita
+        $warnaPita = $validated['warna_pita']
+            ?? 'Senada dengan Buket';
+
+        $hargaPita = $this->getOptionPrice(
+            $customOptions['Pita'],
+            $warnaPita
+        );
+
+        // 9. Hitung total harga
+        // Harga produk dasar tidak ikut ditambahkan
+        $totalHarga = $hargaBunga
+            + $hargaUang
+            + $hargaBoneka
+            + $hargaSnack
+            + $hargaWarnaBuket
+            + $hargaPita;
+
+        // 10. Ambil pilihan tambahan lainnya
+        $ucapan = $validated['pesan_ucapan'] ?? '-';
+        $catatan = $validated['request_khusus'] ?? '-';
+
+        // 11. Susun rincian pilihan bunga
+        $bungaText = ($bunga !== 'Tanpa Bunga')
+            ? "{$bunga} ({$jumlahTangkai} tangkai)"
+            : 'Tanpa Bunga';
+
+        // Rincian uang
+        $tambahanUang = ($nominalUang > 0 && $jumlahLembar > 0)
+            ? 'Rp ' . number_format($nominalUang, 0, ',', '.') .
+                ' (' . $jumlahLembar . ' lembar)'
             : 'Tanpa Uang';
 
-        $boneka = $request->input('tambahan_boneka') ?: 'Tanpa Boneka';
-        $snack = $request->input('tambahan_snack') ?: 'Tanpa Snack';
-        $warnaKertas = $request->input('warna_kertas') ?: ($request->input('warna_buket') ?: 'Default');
-        $warnaPita = $request->input('warna_pita') ?: 'Senada dengan Buket';
-        $ucapan = $request->input('pesan_ucapan') ?: '-';
-        $catatan = $request->input('request_khusus') ?: '-';
+        // 12. Susun rincian custom
+        $rincianUser = "Bunga: {$bungaText}, "
+            . "Harga Bunga: Rp " . number_format($hargaBunga, 0, ',', '.') . ", "
+            . "Uang: {$tambahanUang}, "
+            . "Harga Uang: Rp " . number_format($hargaUang, 0, ',', '.') . ", "
+            . "Boneka: {$boneka}, "
+            . "Harga Boneka: Rp " . number_format($hargaBoneka, 0, ',', '.') . ", "
+            . "Snack: {$snack}, "
+            . "Harga Snack: Rp " . number_format($hargaSnack, 0, ',', '.') . ", "
+            . "Kertas: {$warnaKertas}, "
+            . "Harga Warna: Rp " . number_format($hargaWarnaBuket, 0, ',', '.') . ", "
+            . "Pita: {$warnaPita}, "
+            . "Harga Pita: Rp " . number_format($hargaPita, 0, ',', '.') . ", "
+            . "Ucapan: {$ucapan}, "
+            . "Catatan: {$catatan}";
 
-        // Buat teks rincian lengkap
-        $rincianCustom = "Bunga: {$bunga}, Kertas: {$warnaKertas}, Pita: {$warnaPita}, Uang: {$tambahanUang}, Boneka: {$boneka}, Snack: {$snack}, Ucapan: {$ucapan}";
+        // Penanda harga agar harga custom dapat dikenali
+        $customTextWithPrice = "[HARGA:{$totalHarga}] " . $rincianUser;
 
-        // 5. Susun struktur data pesanan buket custom
+        // 13. Susun data buket custom
         $customData = [
             'type'            => 'custom',
             'product_id'      => $product ? $product->id : null,
-            'name'            => 'Buket Custom (' . $bunga . ')',
+
+            'name'            => 'Buket Custom (' .
+                ($bunga !== 'Tanpa Bunga' ? $bunga : 'Kustom') . ')',
+
             'image'           => $product ? $product->image : null,
-            'bunga_isi'       => $bunga,
+
+            'bunga_isi'       => $bungaText,
+            'jumlah_tangkai'  => $jumlahTangkai,
+            'harga_bunga'     => $hargaBunga,
+
             'tambahan_uang'   => $tambahanUang,
+            'nominal_uang'    => $nominalUang,
+            'jumlah_lembar'   => $jumlahLembar,
+            'harga_uang'      => $hargaUang,
+
             'tambahan_boneka' => $boneka,
+            'harga_boneka'    => $hargaBoneka,
+
             'tambahan_snack'  => $snack,
+            'harga_snack'     => $hargaSnack,
+
             'warna_kertas'    => $warnaKertas,
+            'harga_warna'     => $hargaWarnaBuket,
+
             'warna_pita'      => $warnaPita,
+            'harga_pita'      => $hargaPita,
+
             'pesan_ucapan'    => $ucapan,
             'request_khusus'  => $catatan,
-            'custom_text'     => $rincianCustom,
-            'price'           => $totalHarga, // HARGA CUSTOM DISIMPAN DI SINI (Rp 220.000)
+
+            'custom_text'     => $customTextWithPrice,
+            'price'           => $totalHarga,
             'quantity'        => 1,
         ];
 
-        // 6. Jika user memilih tombol "Masukkan ke Keranjang"
-        if ($request->input('action') === 'keranjang') {
-            if (\Illuminate\Support\Facades\Auth::check()) {
-                \App\Models\Cart::create([
-                    'user_id'     => \Illuminate\Support\Facades\Auth::id(),
-                    'product_id'  => $product ? $product->id : (\App\Models\Product::first()->id ?? 1),
-                    'quantity'    => 1,
-                    'custom_text' => $customData['custom_text'],
-                ]);
+        // 14. Masukkan ke keranjang
+        if ($validated['action'] === 'keranjang') {
+
+            if (!Auth::check()) {
+                return redirect()->route('login');
             }
-            return redirect()->route('cart.index')->with('success', 'Buket custom berhasil dimasukkan ke keranjang!');
+
+            if (!$product) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Produk referensi belum tersedia.');
+            }
+
+            Cart::create([
+                'user_id'     => Auth::id(),
+                'product_id'  => $product->id,
+                'quantity'    => 1,
+                'price'       => $totalHarga,
+                'custom_text' => $customTextWithPrice,
+            ]);
+
+            return redirect()->route('cart.index')
+                ->with(
+                    'success',
+                    'Buket custom berhasil dimasukkan ke keranjang!'
+                );
         }
 
-        // 7. Jika user memilih "Beli Sekarang" -> Simpan ke Session
+        // 15. Checkout langsung
         session([
             'checkout_item' => $customData,
             'custom_buket'  => $customData,
         ]);
 
-        return redirect()->route('checkout.index')->with('success', 'Buket custom berhasil dirakit! Silakan lengkapi data checkout.');
+        return redirect()->route('checkout.index')
+            ->with(
+                'success',
+                'Buket custom berhasil dirakit! Silakan lengkapi data checkout.'
+            );
     }
 
+    // Mengambil daftar pilihan custom
     private function getCustomOptions(): array
     {
         $options = [
             'Bunga' => [
-                ['value' => 'Mawar Merah', 'name' => 'Mawar Merah', 'price' => 35000],
-                ['value' => 'Mawar Pink', 'name' => 'Mawar Pink', 'price' => 35000],
-                ['value' => 'Tulip', 'name' => 'Tulip', 'price' => 45000],
-                ['value' => 'Bunga Matahari (Sunflower)', 'name' => 'Bunga Matahari (Sunflower)', 'price' => 35000],
-                ['value' => "Baby's Breath", 'name' => "Baby's Breath", 'price' => 25000],
-                ['value' => 'Daisy (Aster)', 'name' => 'Daisy (Aster)', 'price' => 25000],
+                ['value' => 'Mawar Merah', 'name' => 'Mawar Merah', 'price' => 12000],
+                ['value' => 'Mawar Pink', 'name' => 'Mawar Pink', 'price' => 12000],
+                ['value' => 'Mawar Putih', 'name' => 'Mawar Putih', 'price' => 12000],
+                ['value' => 'Lili (Lily)', 'name' => 'Lili (Lily)', 'price' => 20000],
+                ['value' => 'Tulip', 'name' => 'Tulip', 'price' => 12000],
+                ['value' => 'Bunga Matahari (Sunflower)', 'name' => 'Bunga Matahari (Sunflower)', 'price' => 15000],
+                ['value' => "Baby's Breath", 'name' => "Baby's Breath", 'price' => 10000],
+                ['value' => 'Daisy (Aster)', 'name' => 'Daisy (Aster)', 'price' => 8000],
             ],
+
             'Uang' => [
                 ['value' => '5000', 'name' => 'Rp 5.000', 'price' => 0],
                 ['value' => '10000', 'name' => 'Rp 10.000', 'price' => 0],
@@ -147,7 +266,9 @@ class CustomBuketController extends Controller
                 ['value' => '50000', 'name' => 'Rp 50.000', 'price' => 0],
                 ['value' => '100000', 'name' => 'Rp 100.000', 'price' => 0],
             ],
+
             'Banyak Lembar Uang' => [],
+
             'Boneka' => [
                 ['value' => 'Tanpa Boneka', 'name' => 'Tanpa Boneka', 'price' => 0],
                 ['value' => 'Boneka Beruang (Teddy Bear)', 'name' => 'Boneka Beruang (Teddy Bear)', 'price' => 25000],
@@ -159,96 +280,81 @@ class CustomBuketController extends Controller
 
             'Snack' => [
                 ['value' => 'Tanpa Snack', 'name' => 'Tanpa Snack', 'price' => 0],
-                [
-                    'value' => 'Paket Hemat','name' => 'Paket Hemat (Chiki ball + Oreo + Permen Kis)','price' => 35000
-                ],[
-                    'value' => 'Paket Coklat',
-                    'name' => 'Paket Coklat Lovers (Silverqueen + KitKat + Beng-Beng + Tango)',
-                    'price' => 65000
-                ],
-                [
-                    'value' => 'Paket Jumbo',
-                    'name' => 'Paket Jumbo (Chitato + Roma + Cadbury + Taro + Kopiko)',
-                    'price' => 80000
-                ],
-                [
-                    'value' => 'Paket Snack Mix',
-                    'name' => 'Paket Snack Mix (Chiki + Silverqueen + KitKat + Beng-Beng + Tango + Chitato + Roma + Cadbury + Taro + Kopiko)',
-                    'price' => 125000
-                ],
-                [
-                    'value' => 'beng - beng ',
-                    'name' => 'Beng-Beng (Coklat + Wafer + Karamel)',
-                    'price' => 20000
-                ],
-                [
-                    'value' => 'chitato',
-                    'name' => 'Chitato (Keripik Kentang Rasa Original)',
-                    'price' => 25000
-                ],
-                [
-                    'value' => 'silverqueen',
-                    'name' => 'Silverqueen (Coklat Batangan)',
-                    'price' => 30000
-                ],
-                [
-                    'value' => 'kitkat',
-                    'name' => 'KitKat (Coklat Wafer)',
-                    'price' => 20000
-                ],
-                [
-                    'value' => 'tango',
-                    'name' => 'Tango (Wafer Coklat)',
-                    'price' => 15000
-                ],
-                [
-                    'value' => 'chocolatos',
-                    'name' => 'Chocolatos ',
-                    'price' => 15000
-                ]
-
+                ['value' => 'Paket Hemat', 'name' => 'Paket Hemat (Chiki ball + Oreo + Permen Kis)', 'price' => 35000],
+                ['value' => 'Paket Coklat', 'name' => 'Paket Coklat Lovers (Silverqueen + KitKat + Beng-Beng + Tango)', 'price' => 65000],
+                ['value' => 'Paket Jumbo', 'name' => 'Paket Jumbo (Chitato + Roma + Cadbury + Taro + Kopiko)', 'price' => 80000],
+                ['value' => 'Paket Snack Mix', 'name' => 'Paket Snack Mix (Chiki + Silverqueen + KitKat + Beng-Beng + Tango + Chitato + Roma + Cadbury + Taro + Kopiko)', 'price' => 125000],
+                ['value' => 'beng - beng ', 'name' => 'Beng-Beng (Coklat + Wafer + Karamel)', 'price' => 20000],
+                ['value' => 'chitato', 'name' => 'Chitato (Keripik Kentang Rasa Original)', 'price' => 25000],
+                ['value' => 'silverqueen', 'name' => 'Silverqueen (Coklat Batangan)', 'price' => 30000],
+                ['value' => 'kitkat', 'name' => 'KitKat (Coklat Wafer)', 'price' => 20000],
+                ['value' => 'tango', 'name' => 'Tango (Wafer Coklat)', 'price' => 15000],
+                ['value' => 'chocolatos', 'name' => 'Chocolatos', 'price' => 15000],
             ],
 
             'Warna Buket' => [
-                ['value' => 'Dusty Pink & Soft Pink', 'name' => 'Dusty Pink & Soft Pink', 'price' => 0],
-                ['value' => 'Milky White / Putih Matte', 'name' => 'Milky White / Putih Matte', 'price' => 0],
-                ['value' => 'Lilac / Ungu Muda', 'name' => 'Lilac / Ungu Muda', 'price' => 0],
-                ['value' => 'Sage Green & Mint', 'name' => 'Sage Green & Mint', 'price' => 0],
-                ['value' => 'Khaki & Cokelat Susu', 'name' => 'Khaki & Cokelat Susu', 'price' => 0],
-                ['value' => 'Kraft/Cokelat Semen', 'name' => 'Kraft/Cokelat Semen', 'price' => 0],
-                ['value' => 'Black Matte (Hitam)', 'name' => 'Black Matte (Hitam)', 'price' => 0],
-                ['value' => 'Maroon (Merah Tua)', 'name' => 'Maroon (Merah Tua)', 'price' => 0],
-                ['value' => 'Navy Blue (Biru Dongker)', 'name' => 'Navy Blue (Biru Dongker)', 'price' => 0],
+                ['value' => 'Dusty Pink & Soft Pink', 'name' => 'Dusty Pink & Soft Pink', 'price' => 15000],
+                ['value' => 'Milky White / Putih Matte', 'name' => 'Milky White / Putih Matte', 'price' => 15000],
+                ['value' => 'Lilac / Ungu Muda', 'name' => 'Lilac / Ungu Muda', 'price' => 15000],
+                ['value' => 'Sage Green & Mint', 'name' => 'Sage Green & Mint', 'price' => 15000],
+                ['value' => 'Peach & Coral', 'name' => 'Peach & Coral', 'price' => 15000],
+                ['value' => 'Soft Yellow & Cream', 'name' => 'Soft Yellow & Cream', 'price' => 15000],
+                ['value' => 'Sky Blue & Baby Blue', 'name' => 'Sky Blue & Baby Blue', 'price' => 15000],
+                ['value' => 'Lavender & Soft Purple', 'name' => 'Lavender & Soft Purple', 'price' => 15000],
+                ['value' => 'Champagne / Beige', 'name' => 'Champagne / Beige', 'price' => 15000],
+                ['value' => 'Coral Pink & Salmon', 'name' => 'Coral Pink & Salmon', 'price' => 15000],
+                ['value' => 'Khaki & Cokelat Susu', 'name' => 'Khaki & Cokelat Susu', 'price' => 15000],
+                ['value' => 'Kraft/Cokelat Semen', 'name' => 'Kraft/Cokelat Semen', 'price' => 15000],
+                ['value' => 'Black Matte (Hitam)', 'name' => 'Black Matte (Hitam)', 'price' => 15000],
+                ['value' => 'Maroon (Merah Tua)', 'name' => 'Maroon (Merah Tua)', 'price' => 15000],
+                ['value' => 'Navy Blue (Biru Dongker)', 'name' => 'Navy Blue (Biru Dongker)', 'price' => 15000],
+            ],
+
+            'Pita' => [
+                ['value' => 'Senada dengan Buket', 'name' => 'Pita Senada dengan Buket', 'price' => 0],
+                ['value' => 'Pita Satin Putih', 'name' => 'Pita Satin Putih', 'price' => 3000],
+                ['value' => 'Pita Satin Emas', 'name' => 'Pita Satin Emas', 'price' => 3000],
+                ['value' => 'Pita Satin Pink', 'name' => 'Pita Satin Pink', 'price' => 3000],
+                ['value' => 'Pita Satin Hitam', 'name' => 'Pita Satin Hitam', 'price' => 3000],
+                ['value' => 'Pita Satin Maroon', 'name' => 'Pita Satin Maroon', 'price' => 3000],
             ],
         ];
 
+        // Pilihan jumlah lembar uang
         foreach ([5, 10, 15, 20, 25, 30, 35, 40, 45, 50] as $jumlah) {
             $options['Banyak Lembar Uang'][] = [
                 'value' => (string) $jumlah,
                 'name' => $jumlah . ' lembar',
-                'price' => $jumlah * 1000,
+                'price' => 0,
             ];
         }
 
-        // Ambil harga dari database jika ada yang cocok
+        // Ambil harga dari database jika tersedia
         $databaseOptions = CustomOption::query()->get();
+
         foreach (['Bunga', 'Boneka', 'Snack'] as $kategori) {
             foreach ($options[$kategori] as &$option) {
-                $databaseOption = $databaseOptions->first(function (CustomOption $item) use ($kategori, $option) {
-                    return mb_strtolower(trim($item->category)) === mb_strtolower($kategori)
-                        && mb_strtolower(trim($item->name)) === mb_strtolower($option['name']);
-                });
+                $databaseOption = $databaseOptions->first(
+                    function (CustomOption $item) use ($kategori, $option) {
+                        return mb_strtolower(trim($item->category))
+                                === mb_strtolower($kategori)
+                            && mb_strtolower(trim($item->name))
+                                === mb_strtolower($option['name']);
+                    }
+                );
 
                 if ($databaseOption) {
                     $option['price'] = (int) $databaseOption->price;
                 }
             }
+
             unset($option);
         }
 
         return $options;
     }
 
+    // Mengambil harga berdasarkan pilihan
     private function getOptionPrice(array $options, string $value): int
     {
         foreach ($options as $option) {
@@ -256,6 +362,8 @@ class CustomBuketController extends Controller
                 return (int) $option['price'];
             }
         }
+
         return 0;
     }
 }
+

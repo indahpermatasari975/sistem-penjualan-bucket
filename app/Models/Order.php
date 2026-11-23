@@ -23,17 +23,23 @@ class Order extends Model
         'delivery_date',
         'delivery_time',
         'payment_method',
+
+        // Status pembayaran
         'status',
+
+        // Status pengerjaan pesanan
+        'order_status',
+
         'snap_token',
     ];
 
-    // Relasi ke User yang memesan
+    // Relasi ke user yang melakukan pemesanan
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Relasi ke Rincian Item Pesanan
+    // Relasi ke daftar produk yang dipesan
     public function items()
     {
         return $this->hasMany(OrderItem::class);

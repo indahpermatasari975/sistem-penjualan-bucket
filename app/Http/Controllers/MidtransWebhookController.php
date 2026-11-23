@@ -45,7 +45,7 @@ class MidtransWebhookController extends Controller
                     $order->update(['status' => 'Lunas']);
                 }
             } elseif ($transactionStatus == 'settlement') {
-                $order->update(['status' => 'Lunas']); // Pembayaran sukses (QRIS, VA, dll)
+                $order->update(['status' => 'Lunas']); 
             } elseif ($transactionStatus == 'pending') {
                 $order->update(['status' => 'Belum Dibayar']);
             } elseif (in_array($transactionStatus, ['deny', 'cancel'])) {
